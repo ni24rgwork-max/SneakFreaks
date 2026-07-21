@@ -251,6 +251,15 @@ rails at once and duplicate tags in one subtree throw.
 
 ## Profile and the Locker
 
+The profile is four blocks — who you are, the one card you chose, what your
+binder holds, what you can do — not a stack of full-width panels. Three things
+carry that: the signed-out call to action is a chip beside the name rather than
+a full-bleed slab (on a dark page a white button that wide becomes the loudest
+thing on screen, and a profile is not a checkout); the featured card is captioned
+and haloed in **its own type colour** so it reads as placed rather than dropped;
+and the Locker section is one tappable panel carrying title, counts and progress
+instead of a header plus a separate stats card.
+
 The profile is the person; the **Locker** is one section of it. `/profile`
 carries identity, a collector tier, the Locker rail and the account rows;
 `/profile/locker` is the full binder, pushed inside the same shell branch so the

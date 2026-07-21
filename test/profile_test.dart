@@ -74,7 +74,7 @@ void main() {
     expect(c.read(profileShowcaseProvider), ProfileShowcase.locker);
     expect(find.byType(SneakerCard), findsNothing);
     expect(find.text('Nothing to showcase yet'), findsOneWidget);
-    expect(find.text('No cards yet'), findsOneWidget);
+    expect(find.textContaining('There are 8 in the set'), findsOneWidget);
   });
 
   testWidgets('buying a pair fills the locker section', (tester) async {
@@ -88,9 +88,8 @@ void main() {
     // Exactly one card on the profile — the pick, not the collection. The
     // section below reports what the binder holds instead of repeating it.
     expect(find.byType(SneakerCard), findsOneWidget);
-    expect(find.text('No cards yet'), findsNothing);
-    expect(find.text('1 of 8 collected'), findsOneWidget);
-    expect(find.text('Set completion'), findsOneWidget);
+    expect(find.textContaining('1 of 8 collected'), findsOneWidget);
+    expect(find.text('1/8'), findsOneWidget);
   });
 
   testWidgets('the showcase is the user\'s choice and it persists',
@@ -155,7 +154,8 @@ void main() {
       expect(c.read(featuredCardIdProvider), isNull);
       expect(c.read(featuredCardProvider)?.product.id, 'sku-001');
       expect(find.byType(SneakerCard), findsOneWidget);
-      expect(find.text('Pick your card'), findsOneWidget);
+      expect(find.text('YOUR RAREST'), findsOneWidget);
+      expect(find.text('Pick'), findsOneWidget);
     });
 
     testWidgets('a pick wins over the rarest, and persists', (tester) async {
@@ -169,7 +169,7 @@ void main() {
       c.read(ordersProvider.notifier).place(nowMillis: 2000);
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Pick your card'));
+      await tester.tap(find.text('Pick'));
       await tester.pumpAndSettle();
       expect(find.text('Your card'), findsOneWidget);
 
@@ -180,7 +180,8 @@ void main() {
 
       expect(c.read(featuredCardIdProvider), 'sku-004');
       expect(c.read(featuredCardProvider)?.product.id, 'sku-004');
-      expect(find.text('Change card'), findsOneWidget);
+      expect(find.text('YOUR CARD'), findsOneWidget);
+      expect(find.text('Change'), findsOneWidget);
       expect(find.byType(SneakerCard), findsOneWidget);
 
       final prefs = c.read(sharedPreferencesProvider);
@@ -217,7 +218,7 @@ void main() {
       await c.read(featuredCardIdProvider.notifier).select('sku-004');
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Change card'));
+      await tester.tap(find.text('Change'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Use my rarest instead'));
       await tester.pumpAndSettle();

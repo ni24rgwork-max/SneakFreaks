@@ -35,6 +35,10 @@ class ProfileShowcaseView extends ConsumerWidget {
 /// A rail of everything owned is the Locker's job, and putting it here made the
 /// profile a second binder. A single card is a pick — it says something about
 /// the person, which is what a profile is for.
+///
+/// Framed and captioned rather than floating: a caption naming what the card is
+/// and a halo in its own type colour make it read as *placed* rather than left
+/// there. The colour is the card's, not an invented accent.
 class _LockerShowcase extends ConsumerWidget {
   const _LockerShowcase();
 
@@ -44,25 +48,99 @@ class _LockerShowcase extends ConsumerWidget {
     if (card == null) return const _NothingYet();
 
     final isAutomatic = ref.watch(featuredCardIdProvider) == null;
+    final accent = card.meta.type.color;
 
-    return Column(
-      spacing: 12,
-      children: [
-        // Sized against the card's own 220pt design width, centred: the hero
-        // of the page, not an item in a list.
-        GestureDetector(
-          onTap: () => showFeaturedCardPicker(context),
-          child: SizedBox(
-            width: 240,
-            child: ScaledSneakerCard(product: card.product, meta: card.meta),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: 14,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  isAutomatic ? 'YOUR RAREST' : 'YOUR CARD',
+                  style: context.text.labelSmall?.copyWith(
+                    color: context.colors.onSurfaceVariant,
+                    letterSpacing: 1.4,
+                  ),
+                ),
+              ),
+              _PickChip(
+                label: isAutomatic ? 'Pick' : 'Change',
+                onTap: () => showFeaturedCardPicker(context),
+              ),
+            ],
+          ),
+          Center(
+            child: GestureDetector(
+              onTap: () => showFeaturedCardPicker(context),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    // Halo in the card\'s own type colour — the thing that
+                    // makes it read as displayed rather than dropped.
+                    BoxShadow(
+                      color: accent.withValues(alpha: 0.28),
+                      blurRadius: 44,
+                      spreadRadius: -6,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: SizedBox(
+                  width: 232,
+                  child:
+                      ScaledSneakerCard(product: card.product, meta: card.meta),
+                ),
+              ),
+            ),
+          ),
+          Center(
+            child: Text(
+              '${card.meta.rarity.label} · ${card.meta.type.label} · '
+              '${card.meta.setLabel}',
+              style: context.text.labelSmall?.copyWith(
+                color: context.colors.onSurfaceVariant,
+                fontFeatures: AppTypography.tabular,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Small, quiet affordance. A full-width button here would compete with the
+/// card, which is the only thing on this block worth looking at.
+class _PickChip extends StatelessWidget {
+  const _PickChip({required this.label, required this.onTap});
+
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: context.colors.surfaceContainerHigh,
+      shape: const StadiumBorder(),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 6, 14, 6),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: 6,
+            children: [
+              Icon(Icons.swap_horiz, size: 15, color: context.colors.onSurface),
+              Text(label, style: context.text.labelMedium),
+            ],
           ),
         ),
-        TextButton.icon(
-          onPressed: () => showFeaturedCardPicker(context),
-          icon: const Icon(Icons.swap_horiz, size: 18),
-          label: Text(isAutomatic ? 'Pick your card' : 'Change card'),
-        ),
-      ],
+      ),
     );
   }
 }
@@ -76,9 +154,9 @@ class _StatsShowcase extends ConsumerWidget {
     final tier = ref.watch(collectorTierProvider);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
       child: Row(
-        spacing: 12,
+        spacing: 10,
         children: [
           _Tile(value: '${stats.owned}', label: 'pairs'),
           _Tile(value: '${stats.brands}', label: 'brands'),
@@ -139,7 +217,7 @@ class _NothingYet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
+      margin: const EdgeInsets.fromLTRB(20, 24, 20, 0),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: context.colors.surfaceContainerLow,
