@@ -13,6 +13,7 @@ abstract final class Routes {
   static const product = 'product'; // relative: /product/:id
   static const collection = 'collection'; // relative: /collection/:tag
   static const search = 'search';
+  static const locker = 'locker'; // relative: /profile/locker
 
   // Auth-gated. Stubs today; the guard is already wired so checkout cannot
   // ship without one.
@@ -26,8 +27,11 @@ abstract final class Routes {
   static const nameProduct = 'product';
   static const nameCollection = 'collection';
   static const nameSearch = 'search';
+  static const nameLocker = 'locker';
   static const nameCheckout = 'checkout';
   static const nameSignIn = 'signIn';
+
+  static const lockerPath = '$profile/$locker';
 
   static String productPath(String id) => '/product/$id';
   static String collectionPath(String tag) => '/collection/$tag';

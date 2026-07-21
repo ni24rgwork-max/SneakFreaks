@@ -171,4 +171,23 @@ void main() {
     await tester.pumpAndSettle();
     expect(currentLocation(c), '/collection/monsoon');
   });
+
+  testWidgets('the locker sits under the profile, inside its branch',
+      (tester) async {
+    final c = await pumpApp(tester);
+
+    c.read(routerProvider).go(Routes.lockerPath);
+    await tester.pumpAndSettle();
+
+    expect(currentLocation(c), '/profile/locker');
+    // Inside the shell branch, so the nav bar stays put — the Locker is a
+    // section of the profile, not a destination of its own.
+    expect(find.byType(NavigationBar), findsOneWidget);
+    expect(find.text('The Locker'), findsOneWidget);
+
+    // And it can be left again without an edge-swipe.
+    await tester.tap(find.byTooltip('Back'));
+    await tester.pumpAndSettle();
+    expect(currentLocation(c), Routes.profile);
+  });
 }

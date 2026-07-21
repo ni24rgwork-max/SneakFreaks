@@ -10,7 +10,7 @@ import 'package:sneakers_app/theme/motion.dart';
 import 'package:sneakers_app/theme/typography.dart';
 import 'package:sneakers_app/view/locker/widgets/card_detail_sheet.dart';
 import 'package:sneakers_app/view/locker/widgets/settings_sheet.dart';
-import 'package:sneakers_app/view/locker/widgets/sneaker_card.dart';
+import 'package:sneakers_app/view/locker/widgets/scaled_sneaker_card.dart';
 
 /// The Locker — cards for pairs the shopper actually bought.
 ///
@@ -35,9 +35,19 @@ class LockerScreen extends ConsumerWidget {
           slivers: [
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 12, 12, 0),
+                padding: const EdgeInsets.fromLTRB(8, 12, 12, 0),
                 child: Row(
                   children: [
+                    // Reached by pushing from the profile, so it needs a way
+                    // back that does not rely on an edge-swipe gesture.
+                    IconButton(
+                      onPressed: () => context.canPop()
+                          ? context.pop()
+                          : context.go(Routes.profile),
+                      icon: const Icon(Icons.arrow_back),
+                      tooltip: 'Back',
+                      color: context.colors.onSurface,
+                    ),
                     Expanded(
                       child:
                           Text('The Locker', style: context.text.displaySmall),
@@ -78,7 +88,7 @@ class LockerScreen extends ConsumerWidget {
                           HapticFeedback.selectionClick();
                           showCardDetailSheet(context, card);
                         },
-                        child: SneakerCard(
+                        child: ScaledSneakerCard(
                           product: card.product,
                           meta: card.meta,
                         ).enter(context, index: i.clamp(0, 6)),

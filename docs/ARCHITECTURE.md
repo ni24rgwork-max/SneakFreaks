@@ -249,13 +249,36 @@ payment returns, so the transition (`SharedAxisTransition`) is applied in
 This is also why product cards have no `Hero`: a product renders in several
 rails at once and duplicate tags in one subtree throw.
 
-## The Locker
+## Profile and the Locker
 
-The account screen is a **binder of collectible cards**, one per product, on
+The profile is the person; the **Locker** is one section of it. `/profile`
+carries identity, a collector tier, the Locker rail and the account rows;
+`/profile/locker` is the full binder, pushed inside the same shell branch so the
+nav bar stays put and Back returns to the profile. Settings live in a sheet —
+something you occasionally need, not what the page is about.
+
+**What leads the profile is the user's choice** (`ProfileShowcase`: Locker,
+Stats, Minimal, persisted to preferences). A profile is the one screen a person
+might reasonably want to arrange, so the hero is theirs to pick rather than ours
+to assume. With nothing collected, every mode falls back to a prompt — an
+ornate empty frame is worse than saying what earns a card.
+
+**Collector tier counts pairs held, never money spent** (`CollectorTier`). A
+tier that rises with spend is a sales quota wearing a badge, and reads as one.
+
+The Locker itself is a **binder of collectible cards**, one per product, on
 trading-card proportions (63:88). It replaced a grouped settings list that was
-indistinguishable from any other e-commerce app. Settings still exist, demoted
-to a sheet — they are something you occasionally need, not what the page is
-about.
+indistinguishable from any other e-commerce app.
+
+**The card has one layout and it scales, rather than reflowing.**
+`SneakerCard`'s type sizes and paddings are absolute, so below roughly 180pt of
+width its info band overflows — which is exactly what a two-up grid does on a
+390pt phone. `ScaledSneakerCard` lays the card out at its design width (220) and
+scales the result to fit, so every tile size renders the identical design. This
+was a live bug: the grid overflowed by 6.2px on one product at handset width
+while passing every test in the suite, because the suite pumped a 1200pt
+surface. `test/layout_test.dart` now pumps a fully-owned collection at four real
+handset sizes and scrolls it, since overflow is only reported at paint time.
 
 **Cards print only real catalogue data.** Brand, model, price, MRP, discount,
 size run, sold-out count, category, drop date. No performance figures are

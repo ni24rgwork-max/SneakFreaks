@@ -42,11 +42,12 @@ aspirational unless it says so.
 | Pricing UI | MRP strikethrough, % off, free-delivery threshold, inclusive-of-taxes |
 | Routing | `go_router` — per-tab stacks, deep links, auth guard |
 | Product detail | Collapsing gallery, discount block, size selector with stock states, pincode check, sticky CTA |
-| Account screen | Reflects real session — signed-out state, no fake identity |
+| Profile | Identity, collector tier, configurable showcase, Locker section, account rows |
 | Loading states | Skeletons from the real widget tree; pull-to-refresh |
 | Motion | Tokenised durations, shared-axis page transitions, reduced-motion honoured |
 | The Locker | Collectible cards earned by purchase — TCG-proportioned, real catalogue data, rarity by price |
-| Tests | 58 tests over cart, money, feed, routing, PDP, locker, orders and motion |
+| Layout | Verified at four handset widths, not just a roomy test surface |
+| Tests | 83 tests over cart, money, feed, routing, PDP, profile, locker, orders, layout and motion |
 
 ### Not built yet
 

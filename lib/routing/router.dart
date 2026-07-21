@@ -14,6 +14,7 @@ import 'package:sneakers_app/view/collection/collection_screen.dart';
 import 'package:sneakers_app/view/detail/detail_screen.dart';
 import 'package:sneakers_app/view/home/home_screen.dart';
 import 'package:sneakers_app/view/locker/locker_screen.dart';
+import 'package:sneakers_app/view/profile/profile_screen.dart';
 import 'package:sneakers_app/view/search/search_screen.dart';
 import 'package:sneakers_app/view/shell/shell_scaffold.dart';
 
@@ -98,7 +99,16 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: Routes.profile,
                 name: Routes.nameProfile,
-                builder: (context, state) => const LockerScreen(),
+                builder: (context, state) => const ProfileScreen(),
+                routes: [
+                  // Pushed inside the branch, so the nav bar stays put and
+                  // back returns to the profile rather than the shell root.
+                  GoRoute(
+                    path: Routes.locker,
+                    name: Routes.nameLocker,
+                    builder: (context, state) => const LockerScreen(),
+                  ),
+                ],
               ),
             ],
           ),
