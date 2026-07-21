@@ -355,6 +355,16 @@ The rows stay hidden until a supplier fills them. `publishedSpecs` strips the
 fixture's `PLACEHOLDER — …` values for the same reason: printed beside a real
 Nike photo they would read as manufacturer fact.
 
+Rows **spread through the band** rather than stacking at the top over a pocket
+of dead space. How many rows a product has varies — MRP is optional, a drop
+date only exists before release, swatches only when the shoe has more than one
+hue — so a fixed stack leaves a differently-sized hole on every card.
+
+The profile's featured tile **restates the card's fields at a legible size**.
+The card's own type runs at 6.5–8pt and is unreadable at thumbnail scale, so a
+thumbnail alone is a picture of information rather than the information. Same
+fields, same providers, no summary layer in between.
+
 The info band budgets **six rows**. MRP, the size run and an upcoming drop date
 are the product's own and always win; extras take what is left, so an upcoming
 shoe shows fewer rather than pushing the footer off the card. Making that room

@@ -276,36 +276,48 @@ class _CardInner extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (product.mrp case final mrp?)
-                  _Row(
-                    label: 'MRP',
-                    value: mrp.formatted,
-                    trailing: product.discountPercent == null
-                        ? null
-                        : '${product.discountPercent}% off',
-                    ink: ink,
-                    accent: palette.accentInk,
+                // Rows spread through the band rather than stacking at the top
+                // over a pocket of dead space. How many rows a product has
+                // varies — MRP is optional, a drop date only exists before
+                // release, swatches only when the shoe has more than one hue —
+                // so a fixed stack leaves a different-sized hole on every card.
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      if (product.mrp case final mrp?)
+                        _Row(
+                          label: 'MRP',
+                          value: mrp.formatted,
+                          trailing: product.discountPercent == null
+                              ? null
+                              : '${product.discountPercent}% off',
+                          ink: ink,
+                          accent: palette.accentInk,
+                        ),
+                      _Row(
+                        label: 'Sizes',
+                        value: available.isEmpty
+                            ? 'Sold out'
+                            : 'UK ${available.first}–${available.last}',
+                        trailing: product.soldOutSizes.isEmpty
+                            ? null
+                            : '${product.soldOutSizes.length} gone',
+                        ink: ink,
+                        accent: palette.accentInk,
+                      ),
+                      if (product.dropsOn case final date?)
+                        _Row(
+                          label: 'Drops',
+                          value: DateFormat('d MMM yyyy').format(date),
+                          ink: ink,
+                          accent: palette.accentInk,
+                        ),
+                      ...extras,
+                    ],
                   ),
-                _Row(
-                  label: 'Sizes',
-                  value: available.isEmpty
-                      ? 'Sold out'
-                      : 'UK ${available.first}–${available.last}',
-                  trailing: product.soldOutSizes.isEmpty
-                      ? null
-                      : '${product.soldOutSizes.length} gone',
-                  ink: ink,
-                  accent: palette.accentInk,
                 ),
-                if (product.dropsOn case final date?)
-                  _Row(
-                    label: 'Drops',
-                    value: DateFormat('d MMM yyyy').format(date),
-                    ink: ink,
-                    accent: palette.accentInk,
-                  ),
-                ...extras,
-                const Spacer(),
                 Container(height: 0.7, color: ink.withValues(alpha: 0.18)),
                 const SizedBox(height: 3),
                 Row(
@@ -367,7 +379,7 @@ class _SwatchRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 2),
+      padding: EdgeInsets.zero,
       child: Row(
         children: [
           SizedBox(
@@ -419,7 +431,7 @@ class _Row extends StatelessWidget {
   Widget build(BuildContext context) {
     final base = AppTypography.build();
     return Padding(
-      padding: const EdgeInsets.only(bottom: 2),
+      padding: EdgeInsets.zero,
       child: Row(
         children: [
           SizedBox(

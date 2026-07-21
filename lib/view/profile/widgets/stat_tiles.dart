@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:sneakers_app/providers/catalogue_provider.dart';
+import 'package:intl/intl.dart';
+
 import 'package:sneakers_app/providers/locker_provider.dart';
+import 'package:sneakers_app/providers/orders_provider.dart';
 import 'package:sneakers_app/providers/profile_provider.dart';
 import 'package:sneakers_app/theme/app_theme.dart';
 import 'package:sneakers_app/theme/typography.dart';
@@ -80,7 +83,12 @@ class ProfileTiles extends ConsumerWidget {
   }
 }
 
-/// The wide tile: the one card, at thumbnail size, with what it is beside it.
+/// The wide tile: the card, and everything printed on it, beside it.
+///
+/// The card's own type runs at 6.5–8pt and is unreadable at thumbnail size, so
+/// a thumbnail alone is a picture of information rather than the information.
+/// The right column restates it at a legible size — same fields, same source,
+/// no summary layer in between.
 class _FeaturedTile extends ConsumerWidget {
   const _FeaturedTile();
 
@@ -89,67 +97,176 @@ class _FeaturedTile extends ConsumerWidget {
     final card = ref.watch(featuredCardProvider);
     if (card == null) return const SizedBox.shrink();
 
-    final palette = ref.watch(productPaletteProvider(card.product.imgAddress));
-    final accent =
-        (palette.value ?? seedPalette(card.product.modelColor)).accent;
+    final product = card.product;
+    final palette = ref.watch(productPaletteProvider(product.imgAddress));
+    final accent = (palette.value ?? seedPalette(product.modelColor)).accent;
     final isAutomatic = ref.watch(featuredCardIdProvider) == null;
+    final owned = ref.watch(provenanceProvider(product.id));
+    final swatches =
+        ref.watch(productColorsProvider(product.imgAddress)).value ??
+            const <Color>[];
 
     return _Panel(
       onTap: () => showFeaturedCardPicker(context),
-      child: Row(
-        spacing: 16,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 12,
         children: [
-          DecoratedBox(
-            decoration: BoxDecoration(
-              boxShadow: [
-                BoxShadow(
-                  color: accent.withValues(alpha: 0.32),
-                  blurRadius: 24,
-                  spreadRadius: -6,
-                  offset: const Offset(0, 6),
-                ),
-              ],
-            ),
-            child: SizedBox(
-              width: 104,
-              child: ScaledSneakerCard(product: card.product, meta: card.meta),
-            ),
-          ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 3,
-              children: [
-                Text(
+          Row(
+            children: [
+              Expanded(
+                child: Text(
                   isAutomatic ? 'YOUR RAREST' : 'YOUR CARD',
                   style: context.text.labelSmall?.copyWith(
                     color: context.colors.onSurfaceVariant,
                     letterSpacing: 1.3,
                   ),
                 ),
-                Text(
-                  card.product.model,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: context.text.titleMedium,
-                ),
-                Text(
-                  '${card.meta.rarity.label} · ${card.meta.type.label} · '
-                  '${card.meta.setLabel}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: context.text.bodySmall?.copyWith(
-                    color: context.colors.onSurfaceVariant,
-                    fontFeatures: AppTypography.tabular,
-                  ),
-                ),
-              ],
-            ),
+              ),
+              Icon(Icons.swap_horiz,
+                  size: 20, color: context.colors.onSurfaceVariant),
+            ],
           ),
-          Icon(Icons.swap_horiz,
-              size: 20, color: context.colors.onSurfaceVariant),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 16,
+            children: [
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                      color: accent.withValues(alpha: 0.32),
+                      blurRadius: 24,
+                      spreadRadius: -6,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: SizedBox(
+                  width: 118,
+                  child: ScaledSneakerCard(product: product, meta: card.meta),
+                ),
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 10,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: 2,
+                      children: [
+                        Text(
+                          product.model,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: context.text.titleMedium,
+                        ),
+                        Text(
+                          '${product.name} · ${card.meta.rarity.label} · '
+                          '${card.meta.setLabel}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: context.text.labelSmall?.copyWith(
+                            color: context.colors.onSurfaceVariant,
+                            fontFeatures: AppTypography.tabular,
+                          ),
+                        ),
+                      ],
+                    ),
+                    _Line(
+                      label: 'Price',
+                      value: product.price.formatted,
+                      trailing: product.discountPercent == null
+                          ? null
+                          : '${product.discountPercent}% off',
+                    ),
+                    if (owned != null) ...[
+                      _Line(
+                        label: 'Yours',
+                        value: owned.sizes.isEmpty
+                            ? '—'
+                            : owned.sizes.map((s) => 'UK $s').join(', '),
+                        trailing: owned.copies > 1 ? '×${owned.copies}' : null,
+                      ),
+                      _Line(
+                        label: 'Got',
+                        value: DateFormat('d MMM yyyy').format(owned.acquired),
+                      ),
+                    ],
+                    if (swatches.length > 1)
+                      Row(
+                        spacing: 8,
+                        children: [
+                          SizedBox(
+                            width: 40,
+                            child: Text(
+                              'Colour',
+                              style: context.text.labelSmall?.copyWith(
+                                  color: context.colors.onSurfaceVariant),
+                            ),
+                          ),
+                          for (final colour in swatches)
+                            Container(
+                              width: 10,
+                              height: 10,
+                              decoration: BoxDecoration(
+                                color: colour,
+                                shape: BoxShape.circle,
+                                border:
+                                    Border.all(color: context.brand.hairline),
+                              ),
+                            ),
+                        ],
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ],
       ),
+    );
+  }
+}
+
+/// One printed field, at a size a person can read.
+class _Line extends StatelessWidget {
+  const _Line({required this.label, required this.value, this.trailing});
+
+  final String label;
+  final String value;
+  final String? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      spacing: 8,
+      children: [
+        SizedBox(
+          width: 40,
+          child: Text(
+            label,
+            style: context.text.labelSmall
+                ?.copyWith(color: context.colors.onSurfaceVariant),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: context.text.labelMedium
+                ?.copyWith(fontFeatures: AppTypography.tabular),
+          ),
+        ),
+        if (trailing case final t?)
+          Text(
+            t,
+            style: context.text.labelSmall
+                ?.copyWith(color: context.colors.onSurfaceVariant),
+          ),
+      ],
     );
   }
 }
