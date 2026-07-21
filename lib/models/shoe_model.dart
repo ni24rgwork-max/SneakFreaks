@@ -13,6 +13,7 @@ class ShoeModel {
     this.mrp,
     this.sizes = const ['6', '7.5', '8', '9.5', '10'],
     this.isNew = false,
+    this.dropsOn,
     this.tags = const [],
   });
 
@@ -40,6 +41,13 @@ class ShoeModel {
 
   /// Drives the New Arrivals rail and the NEW badge.
   final bool isNew;
+
+  /// Release date for an unreleased drop. Non-null means the product is
+  /// announced but not yet purchasable — it appears under Upcoming and is
+  /// excluded from every buyable rail.
+  final DateTime? dropsOn;
+
+  bool get isUpcoming => dropsOn != null;
 
   /// Editorial collection membership, e.g. 'monsoon'. Free-form so a backend
   /// can add collections without a client release.

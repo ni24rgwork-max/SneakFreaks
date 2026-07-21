@@ -61,19 +61,86 @@ void main() {
       tester.element(find.byType(HomeScreen)),
     );
 
-    expect(container.read(trendingProvider).length, 8);
+    // 8 in the catalogue, 2 of them unreleased drops.
+    expect(container.read(catalogueProvider).length, 8);
+    expect(container.read(trendingProvider).length, 6);
 
     container.read(brandFilterProvider.notifier).select('JORDAN');
     await tester.pump();
 
     final trending = container.read(trendingProvider);
-    expect(trending.length, 4);
+    expect(trending.length, 3); // 4 Jordan, 1 unreleased
     expect(trending.every((p) => p.name == 'JORDAN'), isTrue);
     // Rails derive from the same filtered list, so they narrow together.
     expect(
       container.read(newArrivalsProvider).every((p) => p.name == 'JORDAN'),
       isTrue,
     );
+  });
+
+  testWidgets('hero tabs each resolve to a different slice', (tester) async {
+    await pumpFeed(tester);
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(HomeScreen)),
+    );
+    final tabs = container.read(featuredTabProvider.notifier);
+
+    expect(find.text('New'), findsWidgets);
+    expect(find.text('Featured'), findsWidgets);
+    expect(find.text('Upcoming'), findsWidgets);
+
+    tabs.select(FeaturedTab.newIn);
+    await tester.pump();
+    final newIn = container.read(featuredProvider);
+    expect(newIn, isNotEmpty);
+    expect(newIn.every((p) => p.isNew && !p.isUpcoming), isTrue);
+
+    tabs.select(FeaturedTab.upcoming);
+    await tester.pump();
+    final upcoming = container.read(featuredProvider);
+    expect(upcoming.length, 2);
+    expect(upcoming.every((p) => p.isUpcoming), isTrue);
+
+    tabs.select(FeaturedTab.featured);
+    await tester.pump();
+    final featured = container.read(featuredProvider);
+    expect(featured.every((p) => !p.isUpcoming), isTrue);
+
+    // The original rotated selector left every slice identical.
+    expect(newIn.map((p) => p.id).toSet(),
+        isNot(equals(upcoming.map((p) => p.id).toSet())));
+  });
+
+  testWidgets('unreleased drops never reach a buyable surface', (tester) async {
+    await pumpFeed(tester);
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(HomeScreen)),
+    );
+
+    for (final list in [
+      container.read(trendingProvider),
+      container.read(newArrivalsProvider),
+      container.read(underBudgetProvider),
+      container.read(collectionProvider('monsoon')),
+    ]) {
+      expect(list.any((p) => p.isUpcoming), isFalse);
+    }
+  });
+
+  testWidgets('tab and brand filters compose', (tester) async {
+    await pumpFeed(tester);
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(HomeScreen)),
+    );
+
+    container.read(featuredTabProvider.notifier).select(FeaturedTab.upcoming);
+    container.read(brandFilterProvider.notifier).select('JORDAN');
+    await tester.pump();
+
+    final result = container.read(featuredProvider);
+    expect(result.length, 1);
+    expect(result.single.name, 'JORDAN');
+    expect(result.single.isUpcoming, isTrue);
   });
 
   testWidgets('sections hold distinct slices, not the same list', (tester) async {

@@ -60,23 +60,76 @@ final filteredCatalogueProvider = Provider<List<ShoeModel>>((ref) {
   ];
 });
 
+// --- Hero tabs -----------------------------------------------------------
+
+/// The three views of the hero carousel.
+///
+/// The original home screen had these as rotated vertical text that only ever
+/// restyled itself — tapping never changed a product. Here each tab resolves to
+/// a genuinely different slice.
+enum FeaturedTab {
+  newIn('New'),
+  featured('Featured'),
+  upcoming('Upcoming');
+
+  const FeaturedTab(this.label);
+  final String label;
+}
+
+class FeaturedTabController extends Notifier<FeaturedTab> {
+  @override
+  FeaturedTab build() => FeaturedTab.featured;
+
+  void select(FeaturedTab tab) => state = tab;
+}
+
+final featuredTabProvider =
+    NotifierProvider<FeaturedTabController, FeaturedTab>(
+        FeaturedTabController.new);
+
+/// Stock that can actually be bought right now. Announced-but-unreleased
+/// products are excluded from every buyable surface — showing an add-to-bag
+/// path for something with no release date is a support ticket waiting to
+/// happen.
+final buyableProvider = Provider<List<ShoeModel>>((ref) {
+  return [
+    for (final p in ref.watch(filteredCatalogueProvider))
+      if (!p.isUpcoming) p,
+  ];
+});
+
 // --- Feed sections -------------------------------------------------------
 // Each rail is a distinct slice. Previously every section rendered the same
 // unfiltered list, so "More" and the carousel showed identical products.
 
 final featuredProvider = Provider<List<ShoeModel>>((ref) {
-  final items = ref.watch(filteredCatalogueProvider);
-  // Lead with discounted stock — the % off is the primary decision driver in
-  // Indian e-commerce, so it belongs in the hero.
-  final discounted = [
-    for (final p in items)
-      if (p.discountPercent != null) p,
-  ];
-  return discounted.isEmpty ? items : discounted;
+  final tab = ref.watch(featuredTabProvider);
+
+  switch (tab) {
+    case FeaturedTab.upcoming:
+      return [
+        for (final p in ref.watch(filteredCatalogueProvider))
+          if (p.isUpcoming) p,
+      ];
+    case FeaturedTab.newIn:
+      return [
+        for (final p in ref.watch(buyableProvider))
+          if (p.isNew) p,
+      ];
+    case FeaturedTab.featured:
+      final buyable = ref.watch(buyableProvider);
+      // Lead with discounted stock — the % off is the primary decision driver
+      // in Indian e-commerce, so it belongs in the hero.
+      final discounted = [
+        for (final p in buyable)
+          if (p.discountPercent != null) p,
+      ];
+      return discounted.isEmpty ? buyable : discounted;
+  }
 });
 
 final newArrivalsProvider = Provider<List<ShoeModel>>((ref) {
-  final items = ref.watch(filteredCatalogueProvider);
+  final items = ref.watch(buyableProvider);
   return [
     for (final p in items)
       if (p.isNew) p,
@@ -87,7 +140,7 @@ final newArrivalsProvider = Provider<List<ShoeModel>>((ref) {
 const underBudget = Money(1000000); // ₹10,000
 
 final underBudgetProvider = Provider<List<ShoeModel>>((ref) {
-  final items = ref.watch(filteredCatalogueProvider);
+  final items = ref.watch(buyableProvider);
   return [
     for (final p in items)
       if (p.price.paise <= underBudget.paise) p,
@@ -95,7 +148,7 @@ final underBudgetProvider = Provider<List<ShoeModel>>((ref) {
 });
 
 final collectionProvider = Provider.family<List<ShoeModel>, String>((ref, tag) {
-  final items = ref.watch(filteredCatalogueProvider);
+  final items = ref.watch(buyableProvider);
   return [
     for (final p in items)
       if (p.tags.contains(tag)) p,
@@ -104,7 +157,7 @@ final collectionProvider = Provider.family<List<ShoeModel>, String>((ref, tag) {
 
 /// Everything, for the trending grid at the foot of the feed.
 final trendingProvider = Provider<List<ShoeModel>>((ref) {
-  return ref.watch(filteredCatalogueProvider);
+  return ref.watch(buyableProvider);
 });
 
 // --- Product palette -----------------------------------------------------

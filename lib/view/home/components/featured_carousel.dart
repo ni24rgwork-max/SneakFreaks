@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
@@ -36,7 +37,34 @@ class _FeaturedCarouselState extends ConsumerState<FeaturedCarousel> {
   @override
   Widget build(BuildContext context) {
     final featured = ref.watch(featuredProvider);
-    if (featured.isEmpty) return const SizedBox.shrink();
+    final tab = ref.watch(featuredTabProvider);
+
+    // Switching tabs changes the item count. Without this the controller can be
+    // left on a page index the new list no longer has, which shows a blank
+    // viewport until the user scrolls.
+    ref.listen(featuredTabProvider, (_, __) {
+      if (_controller.hasClients) _controller.jumpToPage(0);
+    });
+
+    if (featured.isEmpty) {
+      final brand = ref.watch(brandFilterProvider);
+      return Container(
+        height: 200,
+        alignment: Alignment.center,
+        margin: const EdgeInsets.symmetric(horizontal: 20),
+        decoration: BoxDecoration(
+          border: Border.all(color: context.brand.hairline),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          brand == null
+              ? 'Nothing under ${tab.label} yet'
+              : 'No ${tab.label.toLowerCase()} from $brand',
+          style: context.text.bodyMedium
+              ?.copyWith(color: context.colors.onSurfaceVariant),
+        ),
+      );
+    }
 
     return Column(
       children: [
@@ -157,14 +185,23 @@ class _FeaturedCard extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     spacing: 8,
                     children: [
-                      Text(
-                        product.price.formatted,
-                        style: context.text.titleLarge?.copyWith(
-                          color: resolved.onCard,
-                          fontFeatures: AppTypography.tabular,
+                      if (product.dropsOn case final date?)
+                        Text(
+                          'Drops ${DateFormat('d MMM').format(date)}',
+                          style: context.text.titleLarge?.copyWith(
+                            color: resolved.onCard,
+                            fontFeatures: AppTypography.tabular,
+                          ),
+                        )
+                      else
+                        Text(
+                          product.price.formatted,
+                          style: context.text.titleLarge?.copyWith(
+                            color: resolved.onCard,
+                            fontFeatures: AppTypography.tabular,
+                          ),
                         ),
-                      ),
-                      if (discount != null)
+                      if (discount != null && !product.isUpcoming)
                         Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 3),
@@ -206,12 +243,17 @@ class _FeaturedCard extends ConsumerWidget {
                         spacing: 6,
                         children: [
                           Text(
-                            'View',
+                            product.isUpcoming ? 'Notify me' : 'View',
                             style: context.text.labelMedium
                                 ?.copyWith(color: resolved.top),
                           ),
-                          Icon(Icons.arrow_forward,
-                              size: 15, color: resolved.top),
+                          Icon(
+                            product.isUpcoming
+                                ? Icons.notifications_none
+                                : Icons.arrow_forward,
+                            size: 15,
+                            color: resolved.top,
+                          ),
                         ],
                       ),
                     ),

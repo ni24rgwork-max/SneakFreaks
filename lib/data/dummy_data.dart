@@ -64,6 +64,7 @@ final List<ShoeModel> availableShoes = [
     mrp: Money.rupees(13995),
     imgAddress: "assets/images/nike4.png",
     modelColor: const Color(0xffE4E3E8),
+    dropsOn: DateTime.utc(2026, 8, 12),
     tags: const ['monsoon', 'running'],
   ),
   ShoeModel(
@@ -73,6 +74,7 @@ final List<ShoeModel> availableShoes = [
     price: Money.rupees(12795),
     imgAddress: "assets/images/nike7.png",
     modelColor: const Color(0xffD68043),
+    dropsOn: DateTime.utc(2026, 9, 3),
     tags: const ['court'],
   ),
   ShoeModel(

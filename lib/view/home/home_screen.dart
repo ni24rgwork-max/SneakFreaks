@@ -7,6 +7,7 @@ import 'package:sneakers_app/view/home/components/app_bar.dart';
 import 'package:sneakers_app/view/home/components/brand_rail.dart';
 import 'package:sneakers_app/view/home/components/editorial_banner.dart';
 import 'package:sneakers_app/view/home/components/featured_carousel.dart';
+import 'package:sneakers_app/view/home/components/feed_tabs.dart';
 import 'package:sneakers_app/view/home/components/product_card.dart';
 import 'package:sneakers_app/view/home/components/product_rail.dart';
 import 'package:sneakers_app/view/home/components/section_header.dart';
@@ -35,7 +36,9 @@ class HomeScreen extends ConsumerWidget {
           physics: const BouncingScrollPhysics(),
           slivers: [
             const SliverToBoxAdapter(child: BrandRail()),
-            const SliverToBoxAdapter(child: SizedBox(height: 18)),
+            const SliverToBoxAdapter(child: SizedBox(height: 14)),
+            const SliverToBoxAdapter(child: FeedTabs()),
+            const SliverToBoxAdapter(child: SizedBox(height: 12)),
             const SliverToBoxAdapter(child: FeaturedCarousel()),
 
             if (newArrivals.isNotEmpty) ...[
