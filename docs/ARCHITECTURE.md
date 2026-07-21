@@ -170,6 +170,35 @@ carrying `?from=`, so signing in returns the user to checkout rather than home.
 The session is a stub, but the gate is in place so checkout cannot ship without
 one.
 
+## Product detail
+
+Rebuilt as a `CustomScrollView`: collapsing gallery hero, content slivers, and
+the purchase bar pinned outside the scroll view.
+
+**The purchase bar is `Scaffold.bottomNavigationBar`, not an inline widget.**
+The old page put ADD TO BAG in the scroll column, so it left the screen as soon
+as you read the description. On a page whose only job is converting, the
+primary action stays reachable.
+
+**The PDP is full-screen, above the shell.** The bottom nav both competes with
+the sticky CTA and costs 68px. Nike SNKRS, Myntra and Ajio all do this.
+
+**The discount appears here, not only in the feed.** The previous page showed a
+bare selling price — the strongest purchase signal vanished at the point of
+decision.
+
+**Sold-out sizes render struck through rather than hidden.** "Not for me" and
+"out of stock right now" are different messages, and only one of them keeps the
+shopper on the page.
+
+**Size selection is keyed by product id.** A global selection would leak into
+the next product opened, which silently ships the wrong item.
+
+Layout bugs this replaced, all caused by fixed screen-fraction sizing:
+`Container(height: height * 1.1)` around the page so content could not grow;
+`height / 9` around the description, slicing it mid-sentence with no ellipsis;
+and `width / 9` around the "UK" label, which wrapped it onto two lines.
+
 ## Indian commerce specifics
 
 These are expectations in the Indian market, not embellishments.
@@ -199,6 +228,9 @@ with a CA before any invoice or tax-breakup feature is built.
 | Product imagery | Placeholder material, not cleared for commercial use. |
 | Gesture coverage | Swipe-to-delete and the size sheet are unit-tested at the logic level but the gestures themselves are unexercised. |
 | Hero on cards | A product renders in several rails at once, so per-card `Hero` tags collided. Only the carousel is a hero source; Phase 6 replaces this with `OpenContainer`. |
+| Pincode check | Returns a plausible ETA for any valid 6-digit input. Needs a real serviceability API before shipping. |
+| Product copy | Descriptions and specs are marked `PLACEHOLDER` in the fixture. Grep for it. |
+| Gallery | Products carry one image, so the gallery shows one page. Ready for multiple angles when real photography lands. |
 | Universal / App Links | Custom scheme only. Needs a verified domain. |
 
 ---

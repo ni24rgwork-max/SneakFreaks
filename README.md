@@ -41,7 +41,8 @@ aspirational unless it says so.
 | Cart | Riverpod state, quantities, per-size lines, persisted to disk |
 | Pricing UI | MRP strikethrough, % off, free-delivery threshold, inclusive-of-taxes |
 | Routing | `go_router` — per-tab stacks, deep links, auth guard |
-| Tests | 32 tests over cart maths, persistence, money, feed and routing |
+| Product detail | Collapsing gallery, discount block, size selector with stock states, pincode check, sticky CTA |
+| Tests | 42 tests over cart, money, feed, routing and PDP |
 
 ### Not built yet
 

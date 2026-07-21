@@ -160,6 +160,23 @@ final trendingProvider = Provider<List<ShoeModel>>((ref) {
   return ref.watch(buyableProvider);
 });
 
+/// Siblings for the "You may also like" rail: same brand first, then anything
+/// else buyable, never the product being viewed.
+final relatedProvider =
+    Provider.family<List<ShoeModel>, String>((ref, productId) {
+  final all = ref.watch(catalogueProvider);
+  final current = ref.watch(productByIdProvider(productId));
+  if (current == null) return const [];
+
+  final sameBrand = <ShoeModel>[];
+  final others = <ShoeModel>[];
+  for (final p in all) {
+    if (p.id == productId || p.isUpcoming) continue;
+    (p.name == current.name ? sameBrand : others).add(p);
+  }
+  return [...sameBrand, ...others].take(6).toList(growable: false);
+});
+
 // --- Product palette -----------------------------------------------------
 
 /// Card treatment derived from a product's photography, cached per asset.

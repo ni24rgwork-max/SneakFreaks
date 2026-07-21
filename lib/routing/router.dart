@@ -150,6 +150,9 @@ final List<RouteBase> _browseRoutes = [
   GoRoute(
     path: '${Routes.product}/:id',
     name: Routes.nameProduct,
+    // Above the shell: a PDP is a focused conversion screen, and the bottom
+    // nav both competes with the sticky Add to Bag and costs 68px of height.
+    parentNavigatorKey: _rootKey,
     builder: (context, state) =>
         DetailScreen(productId: state.pathParameters['id']!),
   ),

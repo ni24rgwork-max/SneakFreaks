@@ -543,7 +543,7 @@ Ordered so each phase is independently shippable and nothing gets built twice.
 | **2** ✅ | Money + INR: `Money` type, `PriceText`, `intl`, reprice catalogue, MRP/discount UI, ARB scaffolding | Small, self-contained, visible client win. |
 | **3** ✅ | State management: Riverpod, kill the global list, real `Cart` with quantities, fix the stale-count bug, persist with `hive_ce`/`drift` | Must precede backend work. This is the load-bearing refactor. |
 | **4** ✅ | Navigation: `go_router`, typed routes, deep links | Needs to exist before payment-gateway returns and push notifications. |
-| **5** ◀ next | UI makeover: M3 `NavigationBar`, `CustomScrollView` home, PDP rebuild, bag rebuild, `skeletonizer` | Now it's cheap — tokens, state and routing all exist. |
+| **5** ◐ in progress | UI makeover: M3 `NavigationBar`, `CustomScrollView` home, PDP rebuild, bag rebuild, `skeletonizer` | Now it's cheap — tokens, state and routing all exist. |
 | **6** | Motion: `flutter_animate`, `OpenContainer`, Lottie states, haptics, reduced-motion | Polish pass on a stable UI. |
 | **7** | Backend | Separate conversation. Phase 3's model layer determines how smooth this is. |
 

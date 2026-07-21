@@ -141,22 +141,35 @@ void main() {
     expect(find.text('Monsoon'), findsOneWidget);
   });
 
-  testWidgets('each tab keeps its own navigation stack', (tester) async {
+  testWidgets('the PDP covers the shell — no bottom nav', (tester) async {
     final c = await pumpApp(tester);
+    expect(find.byType(NavigationBar), findsOneWidget);
 
-    // Open a product from Home.
     c.read(routerProvider).go(Routes.productPath('sku-001'));
     await tester.pumpAndSettle();
-    expect(currentLocation(c), '/product/sku-001');
 
-    // Switch to Bag — Home's stack should be preserved, not reset.
+    // Full-screen above the shell: the nav bar must not compete with the
+    // sticky Add to Bag, and it should not be possible to tab away mid-product.
+    expect(find.byType(NavigationBar), findsNothing);
+    expect(find.text('ADD TO BAG'), findsOneWidget);
+  });
+
+  testWidgets('branch routes keep their own stack', (tester) async {
+    final c = await pumpApp(tester);
+
+    // Collection stays inside the Home branch, so the nav bar is still there.
+    c.read(routerProvider).go(Routes.collectionPath('monsoon'));
+    await tester.pumpAndSettle();
+    expect(currentLocation(c), '/collection/monsoon');
+    expect(find.byType(NavigationBar), findsOneWidget);
+
     await tester.tap(find.text('Bag'));
     await tester.pumpAndSettle();
     expect(currentLocation(c), Routes.bag);
 
-    // Back to Home: still on the product, which the old PageView could not do.
+    // Home's stack survived the tab switch — the old PageView could not do this.
     await tester.tap(find.text('Home'));
     await tester.pumpAndSettle();
-    expect(currentLocation(c), '/product/sku-001');
+    expect(currentLocation(c), '/collection/monsoon');
   });
 }
