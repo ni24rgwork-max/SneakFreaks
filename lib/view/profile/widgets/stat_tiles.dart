@@ -111,7 +111,7 @@ class _FeaturedTile extends ConsumerWidget {
               ],
             ),
             child: SizedBox(
-              width: 76,
+              width: 104,
               child: ScaledSneakerCard(product: card.product, meta: card.meta),
             ),
           ),
