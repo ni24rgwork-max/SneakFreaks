@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:sneakers_app/routing/routes.dart';
-
-import 'package:sneakers_app/animation/fadeanimation.dart';
 import 'package:sneakers_app/theme/app_theme.dart';
+import 'package:sneakers_app/theme/motion.dart';
 
+/// Empty bag.
+///
+/// Built with the shared motion helper rather than the project's original
+/// `FadeAnimation` widget, which wrapped `simple_animations` around a hardcoded
+/// 500ms and ignored the reduced-motion setting entirely.
 class EmptyList extends StatelessWidget {
   const EmptyList({super.key});
 
@@ -16,32 +20,26 @@ class EmptyList extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 48),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          spacing: 8,
+          spacing: 10,
           children: [
             Icon(
               Icons.shopping_bag_outlined,
               size: 56,
               color: context.colors.onSurfaceVariant,
-            ),
-            FadeAnimation(
-              delay: 0.5,
-              child: Text('No shoes added!', style: context.text.headlineSmall),
-            ),
-            FadeAnimation(
-              delay: 0.5,
-              child: Text(
-                'Once you have added, come back:)',
-                textAlign: TextAlign.center,
-                style: context.text.bodyLarge?.copyWith(
-                  color: context.colors.onSurfaceVariant,
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
+            ).enter(context),
+            Text('Your bag is empty', style: context.text.headlineSmall)
+                .enter(context, index: 1),
+            Text(
+              'Saved something you liked? It will be waiting here.',
+              textAlign: TextAlign.center,
+              style: context.text.bodyMedium
+                  ?.copyWith(color: context.colors.onSurfaceVariant),
+            ).enter(context, index: 2),
+            const SizedBox(height: 6),
             FilledButton(
               onPressed: () => context.go(Routes.home),
               child: const Text('Browse the store'),
-            ),
+            ).enter(context, index: 3),
           ],
         ),
       ),

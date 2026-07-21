@@ -52,6 +52,13 @@ class BrandTokens extends ThemeExtension<BrandTokens> {
   static const Duration motionSlow = Duration(milliseconds: 500);
   static const Curve motionEmphasized = Curves.easeOutCubic;
 
+  /// Delay between staggered siblings. Small on purpose — anything longer and
+  /// a list of six feels like it is loading rather than arriving.
+  static const int staggerStepMs = 40;
+
+  /// Container-transform duration for card → detail.
+  static const Duration motionContainer = Duration(milliseconds: 420);
+
   @override
   BrandTokens copyWith({
     Color? sale,

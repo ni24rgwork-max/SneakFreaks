@@ -1,8 +1,11 @@
+import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:sneakers_app/providers/auth_provider.dart';
+import 'package:sneakers_app/theme/brand_tokens.dart';
+import 'package:sneakers_app/theme/motion.dart';
 import 'package:sneakers_app/routing/routes.dart';
 import 'package:sneakers_app/view/auth/sign_in_screen.dart';
 import 'package:sneakers_app/view/bag/bag_screen.dart';
@@ -122,6 +125,39 @@ final routerProvider = Provider<GoRouter>((ref) {
   );
 });
 
+/// Material shared-axis transition for pushed pages.
+///
+/// The card-to-page container transform in the `animations` package
+/// (`OpenContainer`) drives its own navigation, which would mean either
+/// double-pushing or giving up addressable routes — and routes are load-bearing
+/// for deep links and payment returns. Applying the transition at the route
+/// instead keeps go_router in charge of navigation and still replaces the
+/// default platform slide with something deliberate.
+CustomTransitionPage<void> _sharedAxis(
+  BuildContext context,
+  GoRouterState state,
+  Widget child,
+) {
+  return CustomTransitionPage<void>(
+    key: state.pageKey,
+    child: child,
+    transitionDuration:
+        context.reduceMotion ? Duration.zero : BrandTokens.motionContainer,
+    reverseTransitionDuration:
+        context.reduceMotion ? Duration.zero : BrandTokens.motionBase,
+    transitionsBuilder: (context, animation, secondary, child) {
+      if (context.reduceMotion) return child;
+      return SharedAxisTransition(
+        animation: animation,
+        secondaryAnimation: secondary,
+        transitionType: SharedAxisTransitionType.scaled,
+        fillColor: Theme.of(context).colorScheme.surface,
+        child: child,
+      );
+    },
+  );
+}
+
 /// The app's custom URL scheme. Works without owning a domain, unlike
 /// Universal Links / App Links — see docs/ARCHITECTURE.md.
 const _scheme = 'sneakfreaks';
@@ -153,8 +189,11 @@ final List<RouteBase> _browseRoutes = [
     // Above the shell: a PDP is a focused conversion screen, and the bottom
     // nav both competes with the sticky Add to Bag and costs 68px of height.
     parentNavigatorKey: _rootKey,
-    builder: (context, state) =>
-        DetailScreen(productId: state.pathParameters['id']!),
+    pageBuilder: (context, state) => _sharedAxis(
+      context,
+      state,
+      DetailScreen(productId: state.pathParameters['id']!),
+    ),
   ),
   GoRoute(
     path: '${Routes.collection}/:tag',

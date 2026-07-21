@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:sneakers_app/providers/cart_provider.dart';
+import 'package:sneakers_app/theme/motion.dart';
 
 /// Bottom-nav shell.
 ///
@@ -34,16 +35,18 @@ class ShellScaffold extends ConsumerWidget {
             label: 'Home',
           ),
           NavigationDestination(
+            // Pulses on count change: the confirmation for adding from a
+            // product page happens down here, on a different screen.
             icon: Badge.count(
               count: cartCount,
               isLabelVisible: cartCount > 0,
               child: const Icon(Icons.shopping_bag_outlined),
-            ),
+            ).pulse(context, trigger: cartCount),
             selectedIcon: Badge.count(
               count: cartCount,
               isLabelVisible: cartCount > 0,
               child: const Icon(Icons.shopping_bag),
-            ),
+            ).pulse(context, trigger: cartCount),
             label: 'Bag',
           ),
           const NavigationDestination(

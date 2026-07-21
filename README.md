@@ -44,7 +44,8 @@ aspirational unless it says so.
 | Product detail | Collapsing gallery, discount block, size selector with stock states, pincode check, sticky CTA |
 | Account screen | Reflects real session — signed-out state, no fake identity |
 | Loading states | Skeletons from the real widget tree; pull-to-refresh |
-| Tests | 46 tests over cart, money, feed, routing, PDP and profile |
+| Motion | Tokenised durations, shared-axis page transitions, reduced-motion honoured |
+| Tests | 51 tests over cart, money, feed, routing, PDP, profile and motion |
 
 ### Not built yet
 

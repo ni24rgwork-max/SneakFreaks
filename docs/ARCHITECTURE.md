@@ -221,6 +221,34 @@ hand-built grey mocks — a mock is a second layout that drifts from the first.
 products for Skeletonizer to paint, so the cart can never resolve a line
 against a fake product.
 
+## Motion
+
+Durations live in `BrandTokens`; nothing hardcodes a `Duration`. Entrances go
+through `motion.dart`:
+
+```dart
+widget.enter(context, index: 2)   // staggered fade + rise
+widget.pulse(context, trigger: n) // attention pulse on value change
+context.reduceMotion              // the OS accessibility setting
+```
+
+**Reduced motion is honoured in one place, not per widget.** `enter` and
+`pulse` return the widget *untouched* when the setting is on — not a
+zero-duration animation, which still schedules frames and leaves pending
+timers. A test asserts the PDP renders every section with animations disabled,
+because a section that only appears via its entrance animation would vanish for
+those users.
+
+**Page transitions are applied at the route, not the card.** The `animations`
+package's `OpenContainer` gives a lovely card-to-page morph, but it drives its
+own navigation — using it alongside `context.push` double-pushes, and dropping
+the push gives up addressable routes. Routes are load-bearing for deep links and
+payment returns, so the transition (`SharedAxisTransition`) is applied in
+`CustomTransitionPage` and go_router stays in charge of navigation.
+
+This is also why product cards have no `Hero`: a product renders in several
+rails at once and duplicate tags in one subtree throw.
+
 ## Indian commerce specifics
 
 These are expectations in the Indian market, not embellishments.
@@ -249,7 +277,7 @@ with a CA before any invoice or tax-breakup feature is built.
 | `ShoeModel.modelColor` | A `dart:ui` `Color` inside a domain model. Not serializable — must leave before a backend supplies the catalogue. |
 | Product imagery | Placeholder material, not cleared for commercial use. |
 | Gesture coverage | Swipe-to-delete and the size sheet are unit-tested at the logic level but the gestures themselves are unexercised. |
-| Hero on cards | A product renders in several rails at once, so per-card `Hero` tags collided. Only the carousel is a hero source; Phase 6 replaces this with `OpenContainer`. |
+| Hero on cards | A product renders in several rails at once, so per-card `Hero` tags collided. Only the carousel is a hero source; cards use the shared-axis route transition instead. |
 | Pincode check | Returns a plausible ETA for any valid 6-digit input. Needs a real serviceability API before shipping. |
 | Product copy | Descriptions and specs are marked `PLACEHOLDER` in the fixture. Grep for it. |
 | Gallery | Products carry one image, so the gallery shows one page. Ready for multiple angles when real photography lands. |

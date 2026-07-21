@@ -11,10 +11,14 @@ Owner: **[@ni24rgwork-max](https://github.com/ni24rgwork-max)**
 
 ## Where things stand
 
-Phases 1–5 of the makeover plan are complete: design system, ₹ currency layer,
-the Riverpod cart, `go_router` navigation, and the UI makeover (home feed, PDP,
-account screen, loading states). Phase 6 (motion) is next, and the AI workstream
-in `AI.md` has not started.
+Phases 1–6 of the makeover plan are complete: design system, ₹ currency layer,
+the Riverpod cart, `go_router` navigation, the UI makeover, and motion. The
+client-side modernization is done.
+
+What remains is Phase 7 — backend and commerce (auth, checkout, payments,
+orders) plus the AI recommendation layer in `AI.md`. That is a project in its
+own right, not a phase. See the root README for the built / not-built board and
+`ARCHITECTURE.md` § Known gaps for tracked debt.
 
 The root [README](../README.md) carries the honest built / not-built status
 board. Keep it accurate — it's the first thing anyone evaluating this reads, and

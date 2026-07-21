@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:sneakers_app/providers/catalogue_provider.dart';
 import 'package:sneakers_app/routing/routes.dart';
 import 'package:sneakers_app/theme/app_theme.dart';
-import 'package:sneakers_app/theme/brand_tokens.dart';
+import 'package:sneakers_app/theme/motion.dart';
 import 'package:sneakers_app/view/detail/components/buy_bar.dart';
 import 'package:sneakers_app/view/detail/components/detail_sections.dart';
 import 'package:sneakers_app/view/detail/components/gallery_hero.dart';
@@ -65,21 +64,11 @@ class DetailScreen extends ConsumerWidget {
     }
 
     final related = ref.watch(relatedProvider(productId));
-    // Honour the OS reduced-motion setting rather than animating regardless.
-    final animate = !MediaQuery.disableAnimationsOf(context);
 
     // Sections enter in sequence so the eye lands on price, then size, then
     // supporting detail — instead of the whole page arriving at once.
-    Widget stagger(Widget child, int index) {
-      if (!animate) return child;
-      return child
-          .animate()
-          .fadeIn(
-            delay: Duration(milliseconds: 40 * index),
-            duration: BrandTokens.motionBase,
-          )
-          .slideY(begin: 0.06, curve: BrandTokens.motionEmphasized);
-    }
+    // `enter` handles the reduced-motion check centrally.
+    Widget stagger(Widget child, int index) => child.enter(context, index: index);
 
     return Scaffold(
       body: CustomScrollView(
