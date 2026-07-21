@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
 import 'package:sneakers_app/providers/auth_provider.dart';
 import 'package:sneakers_app/providers/cart_provider.dart';
@@ -9,35 +10,31 @@ import 'package:sneakers_app/providers/orders_provider.dart';
 import 'package:sneakers_app/providers/profile_provider.dart';
 import 'package:sneakers_app/routing/routes.dart';
 import 'package:sneakers_app/theme/app_theme.dart';
-import 'package:sneakers_app/theme/typography.dart';
 import 'package:sneakers_app/view/locker/widgets/settings_sheet.dart';
 import 'package:sneakers_app/view/profile/widget/account_tile.dart';
-import 'package:sneakers_app/view/profile/widgets/shelf.dart';
-import 'package:sneakers_app/view/profile/widgets/showcase.dart';
 import 'package:sneakers_app/view/profile/widgets/showcase_picker.dart';
+import 'package:sneakers_app/view/profile/widgets/size_sheet.dart';
+import 'package:sneakers_app/view/profile/widgets/stat_tiles.dart';
 
 /// Profile.
 ///
-/// Reads as a collector's portfolio: who you are, the one card you chose, the
-/// pairs on your shelf, what your binder holds, and what you can do. Every
-/// figure on it is counted from the catalogue and your own order history —
-/// nothing here is decorative filler. The Locker is a *section*; the binder
-/// itself lives at [Routes.lockerPath].
+/// Identity, then the collection as a grid of small facts, then the account as
+/// grouped rows. The card is one tile among several — it already has a whole
+/// screen of its own at [Routes.lockerPath], and a profile should answer "who
+/// is this person" before "what does their card look like".
 ///
-/// Which block leads is the user's call via [ProfileShowcase]. A profile is the
-/// one screen a person might reasonably want to arrange, so the hero is theirs
-/// to pick rather than ours to assume.
+/// Every figure is counted from the catalogue and this shopper's own order
+/// history. Rows that need a backend say so plainly rather than showing a
+/// convincing empty state that implies the feature exists.
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final signedIn = ref.watch(authProvider);
-    final tier = ref.watch(collectorTierProvider);
     final stats = ref.watch(lockerStatsProvider);
     final orders = ref.watch(ordersProvider);
     final cartCount = ref.watch(cartCountProvider);
-    final showcase = ref.watch(profileShowcaseProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -55,80 +52,91 @@ class ProfileScreen extends ConsumerWidget {
                     IconButton(
                       onPressed: () => showShowcasePicker(context),
                       icon: const Icon(Icons.tune),
-                      tooltip: 'Choose showcase',
-                      color: context.colors.onSurfaceVariant,
-                    ),
-                    IconButton(
-                      onPressed: () => showSettingsSheet(context),
-                      icon: const Icon(Icons.settings_outlined),
-                      tooltip: 'Settings',
+                      tooltip: 'Choose what leads',
                       color: context.colors.onSurfaceVariant,
                     ),
                   ],
                 ),
               ),
             ),
-
-            SliverToBoxAdapter(
-              child:
-                  _Identity(signedIn: signedIn, tier: tier, pairs: stats.owned),
-            ),
-
-            // ── Whichever block the user chose to lead ──
-            const SliverToBoxAdapter(child: ProfileShowcaseView()),
-
-            // ── The pairs themselves ──
-            const SliverToBoxAdapter(child: ProfileShelf()),
-
-            // ── The Locker, as a section ──
-            SliverToBoxAdapter(child: _LockerSection(stats: stats)),
-
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                child: Material(
-                  color: context.colors.surfaceContainerLowest,
-                  shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(context.brand.cardRadius),
-                    side: BorderSide(color: context.brand.hairline),
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: Column(
-                    children: [
-                      AccountTile(
-                        icon: Icons.receipt_long_outlined,
-                        title: 'Orders',
-                        subtitle: orders.isEmpty
-                            ? 'No orders yet'
-                            : '${orders.length} placed',
-                        enabled: signedIn,
-                        onTap: () {},
-                      ),
-                      AccountTile(
-                        icon: Icons.favorite_border,
-                        title: 'Wishlist',
-                        subtitle: 'Saved for later',
-                        enabled: signedIn,
-                        onTap: () {},
-                      ),
-                      AccountTile(
-                        icon: Icons.shopping_bag_outlined,
-                        title: 'Bag',
-                        subtitle: cartCount == 0
-                            ? 'Empty'
-                            : '$cartCount item${cartCount == 1 ? '' : 's'}',
-                        onTap: () => context.go(Routes.bag),
-                      ),
-                    ],
-                  ),
+            const SliverToBoxAdapter(child: _Identity()),
+            const SliverToBoxAdapter(child: ProfileTiles()),
+            _Group(
+              title: 'Collection',
+              children: [
+                AccountTile(
+                  icon: Icons.style_outlined,
+                  title: 'The Locker',
+                  subtitle: stats.isEmpty
+                      ? 'Cards you earn by buying'
+                      : '${stats.owned} of ${stats.total} collected',
+                  onTap: () => context.push(Routes.lockerPath),
                 ),
-              ),
+                AccountTile(
+                  icon: Icons.favorite_border,
+                  title: 'Wishlist',
+                  subtitle: signedIn ? 'Saved for later' : 'Sign in to save',
+                  enabled: signedIn,
+                  onTap: () {},
+                ),
+              ],
             ),
-
+            _Group(
+              title: 'Orders',
+              children: [
+                AccountTile(
+                  icon: Icons.receipt_long_outlined,
+                  title: 'Order history',
+                  subtitle: orders.isEmpty
+                      ? 'No orders yet'
+                      : '${orders.length} placed',
+                  enabled: signedIn && orders.isNotEmpty,
+                  onTap: () {},
+                ),
+                AccountTile(
+                  icon: Icons.shopping_bag_outlined,
+                  title: 'Bag',
+                  subtitle: cartCount == 0
+                      ? 'Empty'
+                      : '$cartCount item${cartCount == 1 ? '' : 's'}',
+                  onTap: () => context.go(Routes.bag),
+                ),
+              ],
+            ),
+            _Group(
+              title: 'Account',
+              children: [
+                AccountTile(
+                  icon: Icons.straighten,
+                  title: 'Size & fit',
+                  subtitle: _sizeSubtitle(ref),
+                  onTap: () => showSizeSheet(context),
+                ),
+                // Deliberately honest: these need a server, and a polished
+                // "no saved addresses" screen would imply one exists.
+                const AccountTile(
+                  icon: Icons.location_on_outlined,
+                  title: 'Addresses',
+                  subtitle: 'Not set up yet',
+                  enabled: false,
+                ),
+                const AccountTile(
+                  icon: Icons.account_balance_wallet_outlined,
+                  title: 'Payment',
+                  subtitle: 'Not set up yet',
+                  enabled: false,
+                ),
+                AccountTile(
+                  icon: Icons.settings_outlined,
+                  title: 'Preferences',
+                  subtitle: 'Appearance and notifications',
+                  onTap: () => showSettingsSheet(context),
+                ),
+              ],
+            ),
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 22, 20, 32),
+                padding: const EdgeInsets.fromLTRB(20, 26, 20, 32),
                 child: Text(
                   'SneakFreaks · v0.1.0',
                   style: context.text.labelSmall
@@ -136,69 +144,73 @@ class ProfileScreen extends ConsumerWidget {
                 ),
               ),
             ),
-
-            if (showcase == ProfileShowcase.minimal)
-              const SliverToBoxAdapter(child: SizedBox(height: 8)),
           ],
         ),
       ),
     );
   }
+
+  String _sizeSubtitle(WidgetRef ref) {
+    final size = ref.watch(profileSizeProvider);
+    if (size == null) return 'Not set';
+    return ref.watch(preferredSizeProvider) == null
+        ? 'UK $size · from what you buy'
+        : 'UK $size';
+  }
 }
 
-/// Who you are, in one line.
+/// Who you are, in one row.
 ///
 /// The signed-out call to action is a chip beside the name rather than a
 /// full-bleed slab: on a dark page a white button that wide becomes the loudest
-/// thing on screen, which is not what a profile is about.
-class _Identity extends StatelessWidget {
-  const _Identity({
-    required this.signedIn,
-    required this.tier,
-    required this.pairs,
-  });
-
-  final bool signedIn;
-  final CollectorTier tier;
-  final int pairs;
+/// thing on screen, and a profile is not a checkout.
+class _Identity extends ConsumerWidget {
+  const _Identity();
 
   @override
-  Widget build(BuildContext context) {
-    final toNext = tier.pairsToNext(pairs);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final signedIn = ref.watch(authProvider);
+    final tier = ref.watch(collectorTierProvider);
+    final since = ref.watch(memberSinceProvider);
+    final size = ref.watch(profileSizeProvider);
+
+    // Built from facts that exist. There is no handle until there is an
+    // account, and inventing one is not a placeholder, it is a lie.
+    final line = [
+      if (signedIn) tier.label,
+      if (size != null) 'UK $size',
+      if (since != null) 'since ${DateFormat('MMM yyyy').format(since)}',
+    ].join(' · ');
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 6, 20, 0),
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
       child: Row(
         spacing: 14,
         children: [
           Container(
-            width: 52,
-            height: 52,
+            width: 56,
+            height: 56,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: context.colors.surfaceContainerHigh,
               border: Border.all(color: context.brand.hairline),
             ),
-            // No stock photo of a stranger standing in for the user.
             child: Icon(Icons.person_outline,
                 color: context.colors.onSurfaceVariant),
           ),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 2,
+              spacing: 3,
               children: [
                 Text(
                   signedIn ? tier.label : 'Guest',
-                  style: context.text.titleMedium,
+                  style: context.text.titleLarge,
                 ),
                 Text(
-                  signedIn
-                      ? (toNext == null
-                          ? 'Top tier'
-                          : '$toNext more ${toNext == 1 ? 'pair' : 'pairs'} to '
-                              '${CollectorTier.values[tier.index + 1].label}')
-                      : 'Sign in to keep your collection',
+                  // No "not signed in" suffix: the button beside it already
+                  // says that, and the pair together overran the row.
+                  line.isEmpty ? 'Sign in to keep your collection' : line,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: context.text.bodySmall
@@ -212,8 +224,8 @@ class _Identity extends StatelessWidget {
               onPressed: () => context.push(Routes.signIn),
               // The theme styles buttons full-bleed; this one sits in a row.
               style: FilledButton.styleFrom(
-                minimumSize: const Size(0, 40),
-                padding: const EdgeInsets.symmetric(horizontal: 18),
+                minimumSize: const Size(0, 38),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 textStyle: context.text.labelMedium,
               ),
               child: const Text('Sign in'),
@@ -224,88 +236,42 @@ class _Identity extends StatelessWidget {
   }
 }
 
-/// The Locker in one tappable panel: what you hold, how far through the set,
-/// and a way in. The binder itself is a screen, not a section.
-class _LockerSection extends StatelessWidget {
-  const _LockerSection({required this.stats});
+/// A titled group of account rows.
+class _Group extends StatelessWidget {
+  const _Group({required this.title, required this.children});
 
-  final LockerStats stats;
+  final String title;
+  final List<Widget> children;
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 26, 20, 0),
-      child: Material(
-        color: context.colors.surfaceContainerLow,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(context.brand.cardRadius),
-          side: BorderSide(color: context.brand.hairline),
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: () => context.push(Routes.lockerPath),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(18, 16, 12, 18),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 14,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child:
-                          Text('The Locker', style: context.text.headlineSmall),
-                    ),
-                    Icon(Icons.arrow_forward,
-                        size: 20, color: context.colors.onSurfaceVariant),
-                    const SizedBox(width: 6),
-                  ],
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 10,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 4),
+              child: Text(
+                title.toUpperCase(),
+                style: context.text.labelSmall?.copyWith(
+                  color: context.colors.onSurfaceVariant,
+                  letterSpacing: 1.3,
                 ),
-                if (stats.isEmpty)
-                  Text(
-                    'Every pair you buy becomes a card. There are '
-                    '${stats.total} in the set.',
-                    style: context.text.bodySmall
-                        ?.copyWith(color: context.colors.onSurfaceVariant),
-                  )
-                else ...[
-                  Text(
-                    '${stats.owned} of ${stats.total} collected · '
-                    '${stats.brands} ${stats.brands == 1 ? 'brand' : 'brands'}'
-                    '${stats.rarest == null ? '' : ' · ${stats.rarest!.label} rarest'}',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: context.text.bodySmall
-                        ?.copyWith(color: context.colors.onSurfaceVariant),
-                  ),
-                  Row(
-                    spacing: 12,
-                    children: [
-                      Expanded(
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(999),
-                          child: LinearProgressIndicator(
-                            value: stats.completion,
-                            minHeight: 5,
-                            backgroundColor:
-                                context.colors.surfaceContainerHigh,
-                            valueColor: AlwaysStoppedAnimation(
-                                context.colors.onSurface),
-                          ),
-                        ),
-                      ),
-                      Text(
-                        '${stats.owned}/${stats.total}',
-                        style: context.text.labelMedium
-                            ?.copyWith(fontFeatures: AppTypography.tabular),
-                      ),
-                      const SizedBox(width: 6),
-                    ],
-                  ),
-                ],
-              ],
+              ),
             ),
-          ),
+            Material(
+              color: context.colors.surfaceContainerLowest,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(context.brand.cardRadius),
+                side: BorderSide(color: context.brand.hairline),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: Column(children: children),
+            ),
+          ],
         ),
       ),
     );

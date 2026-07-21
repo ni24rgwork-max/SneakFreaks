@@ -42,7 +42,7 @@ aspirational unless it says so.
 | Pricing UI | MRP strikethrough, % off, free-delivery threshold, inclusive-of-taxes |
 | Routing | `go_router` — per-tab stacks, deep links, auth guard |
 | Product detail | Collapsing gallery, discount block, size selector with stock states, pincode check, sticky CTA |
-| Profile | A collector's portfolio — hand-picked card, shelf of owned pairs, usual size, Locker, account |
+| Profile | Identity, a stat-tile grid, hand-picked card, size & fit, grouped account rows |
 | Loading states | Skeletons from the real widget tree; pull-to-refresh |
 | Motion | Tokenised durations, shared-axis page transitions, reduced-motion honoured |
 | The Locker | Collectible cards earned by purchase — TCG-proportioned, real catalogue data, rarity by price, colour pulled from the shoe's own photography |

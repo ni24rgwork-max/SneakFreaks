@@ -2,16 +2,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:sneakers_app/data/preferences.dart';
 import 'package:sneakers_app/providers/locker_provider.dart';
+import 'package:sneakers_app/providers/orders_provider.dart';
 
-/// What occupies the top of the profile.
+/// What fills the wide tile at the top of the profile grid.
 ///
 /// A profile is the one screen a user might reasonably want to arrange, so the
 /// hero is theirs to choose rather than ours to assume. Collectors want cards
 /// on top; someone who just buys shoes wants their numbers or nothing at all.
 enum ProfileShowcase {
-  locker('My card', 'One card of your choosing, front and centre'),
-  stats('Stats', 'Collection numbers at a glance'),
-  minimal('Minimal', 'Just the essentials');
+  locker('My card', 'The card you picked, with what it is'),
+  stats('Set progress', 'How far through the set you are'),
+  minimal('Neither', 'Just the numbers');
 
   const ProfileShowcase(this.label, this.blurb);
 
@@ -91,6 +92,49 @@ final featuredCardProvider = Provider<LockerCard?>((ref) {
     (a, b) => b.meta.rarity.index > a.meta.rarity.index ? b : a,
   );
 });
+
+/// When the collection started, from the earliest order.
+///
+/// Not an account-creation date — there is no account yet, and inventing one
+/// would be the kind of small lie that is impossible to walk back once it has
+/// been shown to someone. Null until there is a first order to point at.
+final memberSinceProvider = Provider<DateTime?>((ref) {
+  final orders = ref.watch(ordersProvider);
+  if (orders.isEmpty) return null;
+  // Stored newest-first.
+  return orders.last.placedAt;
+});
+
+/// A size the shopper set by hand, overriding what their orders imply.
+///
+/// [usualSizeProvider] is an inference — accurate for most people and wrong for
+/// anyone who buys gifts, or whose size differs by silhouette. An inference
+/// presented as fact with no way to correct it is worse than no fact at all.
+class PreferredSizeController extends Notifier<String?> {
+  static const _key = 'profile_size_v1';
+
+  @override
+  String? build() => ref.watch(sharedPreferencesProvider).getString(_key);
+
+  Future<void> select(String size) async {
+    state = size;
+    await ref.read(sharedPreferencesProvider).setString(_key, size);
+  }
+
+  /// Back to whatever the orders say.
+  Future<void> clear() async {
+    state = null;
+    await ref.read(sharedPreferencesProvider).remove(_key);
+  }
+}
+
+final preferredSizeProvider =
+    NotifierProvider<PreferredSizeController, String?>(
+        PreferredSizeController.new);
+
+/// The size to show: what was set by hand, else what the orders imply.
+final profileSizeProvider = Provider<String?>(
+    (ref) => ref.watch(preferredSizeProvider) ?? ref.watch(usualSizeProvider));
 
 /// Collector standing, derived from how many cards are held.
 ///

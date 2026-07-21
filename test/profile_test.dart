@@ -63,18 +63,18 @@ void main() {
     expect(find.text('Profile'), findsOneWidget);
     expect(find.text('The Locker'), findsOneWidget);
     // The rest of the page exists alongside it.
-    expect(find.text('Orders'), findsOneWidget);
+    expect(find.text('COLLECTION'), findsOneWidget);
+    expect(find.text('Order history'), findsOneWidget);
     expect(find.text('Bag'), findsOneWidget);
   });
 
-  testWidgets('with nothing bought, both showcase and locker prompt',
-      (tester) async {
+  testWidgets('with nothing bought, the page says so plainly', (tester) async {
     final c = await pumpProfile(tester);
 
     expect(c.read(profileShowcaseProvider), ProfileShowcase.locker);
     expect(find.byType(SneakerCard), findsNothing);
-    expect(find.text('Nothing to showcase yet'), findsOneWidget);
-    expect(find.textContaining('There are 8 in the set'), findsOneWidget);
+    expect(find.text('No pairs yet'), findsOneWidget);
+    expect(find.text('Cards you earn by buying'), findsOneWidget);
   });
 
   testWidgets('buying a pair fills the locker section', (tester) async {
@@ -88,8 +88,8 @@ void main() {
     // Exactly one card on the profile — the pick, not the collection. The
     // section below reports what the binder holds instead of repeating it.
     expect(find.byType(SneakerCard), findsOneWidget);
-    expect(find.textContaining('1 of 8 collected'), findsOneWidget);
-    expect(find.text('1/8'), findsOneWidget);
+    expect(find.text('1 of 8 collected'), findsOneWidget);
+    expect(find.text('1'), findsWidgets); // the pairs tile
   });
 
   testWidgets('the showcase is the user\'s choice and it persists',
@@ -104,12 +104,12 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Showcase'), findsOneWidget);
 
-    await tester.tap(find.text('Stats'));
+    await tester.tap(find.text('Set progress'));
     await tester.pumpAndSettle();
 
     expect(c.read(profileShowcaseProvider), ProfileShowcase.stats);
-    // Numbers lead instead of the card, and no card art remains.
-    expect(find.text('of the set'), findsOneWidget);
+    // Set progress leads instead of the card, and no card art remains.
+    expect(find.text('THE SET'), findsOneWidget);
     expect(find.byType(SneakerCard), findsNothing);
 
     // Written through to preferences, so the choice survives a restart.
@@ -128,12 +128,13 @@ void main() {
 
     await tester.tap(find.byIcon(Icons.tune));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Minimal'));
+    await tester.tap(find.text('Neither'));
     await tester.pumpAndSettle();
 
     expect(c.read(profileShowcaseProvider), ProfileShowcase.minimal);
-    expect(find.text('Nothing to showcase yet'), findsNothing);
-    // The locker section is a section, not the showcase — it stays.
+    // The wide tile goes; the grid and the account rows stay.
+    expect(find.text('YOUR CARD'), findsNothing);
+    expect(find.text('THE SET'), findsNothing);
     expect(find.text('The Locker'), findsOneWidget);
   });
 
@@ -155,7 +156,6 @@ void main() {
       expect(c.read(featuredCardProvider)?.product.id, 'sku-001');
       expect(find.byType(SneakerCard), findsOneWidget);
       expect(find.text('YOUR RAREST'), findsOneWidget);
-      expect(find.text('Pick'), findsOneWidget);
     });
 
     testWidgets('a pick wins over the rarest, and persists', (tester) async {
@@ -169,7 +169,7 @@ void main() {
       c.read(ordersProvider.notifier).place(nowMillis: 2000);
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Pick'));
+      await tester.tap(find.text('YOUR RAREST'));
       await tester.pumpAndSettle();
       expect(find.text('Your card'), findsOneWidget);
 
@@ -181,7 +181,6 @@ void main() {
       expect(c.read(featuredCardIdProvider), 'sku-004');
       expect(c.read(featuredCardProvider)?.product.id, 'sku-004');
       expect(find.text('YOUR CARD'), findsOneWidget);
-      expect(find.text('Change'), findsOneWidget);
       expect(find.byType(SneakerCard), findsOneWidget);
 
       final prefs = c.read(sharedPreferencesProvider);
@@ -218,7 +217,7 @@ void main() {
       await c.read(featuredCardIdProvider.notifier).select('sku-004');
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('Change'));
+      await tester.tap(find.text('YOUR CARD'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Use my rarest instead'));
       await tester.pumpAndSettle();
@@ -228,9 +227,8 @@ void main() {
     });
   });
 
-  group('the shelf', () {
-    testWidgets('shows the pairs themselves, not more card art',
-        (tester) async {
+  group('size and fit', () {
+    testWidgets('the card tile names the pick', (tester) async {
       final c = await pumpProfile(tester);
       final catalogue = c.read(catalogueProvider);
       for (final id in ['sku-001', 'sku-002']) {
@@ -242,13 +240,12 @@ void main() {
       c.read(ordersProvider.notifier).place(nowMillis: 5000);
       await tester.pumpAndSettle();
 
-      expect(find.text('THE SHELF'), findsOneWidget);
-      // One card (the pick) plus a photo per owned pair.
+      // One card thumbnail — the pick — and its name beside it.
       expect(find.byType(SneakerCard), findsOneWidget);
-      for (final id in ['sku-001', 'sku-002']) {
-        final product = catalogue.firstWhere((p) => p.id == id);
-        expect(find.text(product.model), findsWidgets);
-      }
+      final featured = c.read(featuredCardProvider)!;
+      // Once on the card art, once as the tile's label beside it.
+      expect(find.text(featured.product.model), findsNWidgets(2));
+      expect(catalogue.map((p) => p.id), contains(featured.product.id));
     });
 
     testWidgets('usual size is counted from real order lines', (tester) async {
@@ -263,13 +260,15 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(c.read(usualSizeProvider), '9');
-      expect(find.text('UK 9'), findsOneWidget);
+      expect(c.read(profileSizeProvider), '9');
+      expect(find.text('UK 9'), findsWidgets);
     });
 
     testWidgets('no orders means no claim about size', (tester) async {
       final c = await pumpProfile(tester);
       expect(c.read(usualSizeProvider), isNull);
-      expect(find.text('THE SHELF'), findsNothing);
+      expect(c.read(profileSizeProvider), isNull);
+      expect(find.text('Not set'), findsOneWidget);
     });
   });
 

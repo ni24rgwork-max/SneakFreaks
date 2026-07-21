@@ -251,26 +251,35 @@ rails at once and duplicate tags in one subtree throw.
 
 ## Profile and the Locker
 
-The profile reads as a collector's portfolio — who you are, the one card you
-chose, the pairs on your shelf, what your binder holds, what you can do — rather
-than a stack of full-width panels.
+The profile is **identity, then a grid of small facts, then grouped account
+rows**. The card is one tile among several — it already has a whole screen of
+its own, and a profile should answer "who is this person" before "what does
+their card look like". An earlier pass made the card a full-width hero; at 40%
+of the viewport it read as a card showcase with an account page attached.
 
-**The Shelf holds shoes; the Locker holds cards.** A collector's page that only
-ever shows card art is a page about the card game, and the shoes are the point.
-Each tile is the catalogue's own photography on a gradient pulled from that
-photo, and taps through to the product.
+Which content fills the **wide tile** above the grid is still the user's call
+(`ProfileShowcase`: My card / Set progress / Neither, persisted).
 
-Two facts sit beside it, both counted rather than claimed: `usualSizeProvider`
-reads the size bought most often off the order lines (which already carry
-`productId#size`), and the category shown is whichever the collection actually
-leans towards. With no orders there is no shelf and no claim about size — an
-empty portfolio saying nothing beats one saying something invented. Three things
-carry that: the signed-out call to action is a chip beside the name rather than
-a full-bleed slab (on a dark page a white button that wide becomes the loudest
-thing on screen, and a profile is not a checkout); the featured card is captioned
-and haloed in **its own type colour** so it reads as placed rather than dropped;
-and the Locker section is one tappable panel carrying title, counts and progress
-instead of a header plus a separate stats card.
+Everything on the page is counted, never claimed:
+
+| Shown | Source |
+|---|---|
+| pairs, brands, rarest | owned cards, from order history |
+| set progress | owned ÷ catalogue size |
+| usual size | `usualSizeProvider` — most frequent size across order lines |
+| member since | earliest order date |
+
+`memberSinceProvider` is the **first order**, not an account-creation date —
+there is no account yet, and inventing one is the kind of small lie that cannot
+be walked back once someone has seen it. `preferredSizeProvider` lets the
+shopper override the inferred size, because an inference presented as fact with
+no way to correct it is worse than no fact: it is wrong for anyone who buys
+gifts or whose size differs by silhouette.
+
+**Addresses and Payment ship as visibly disabled rows reading "Not set up
+yet".** A polished "no saved addresses" empty state would imply the feature
+exists and merely has no data, which is a harder thing to discover as false than
+a row that says plainly it is not built.
 
 The profile is the person; the **Locker** is one section of it. `/profile`
 carries identity, a collector tier, the Locker rail and the account rows;
