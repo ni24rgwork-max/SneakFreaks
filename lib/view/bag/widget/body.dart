@@ -1,11 +1,11 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, unnecessary_brace_in_string_interps, sized_box_for_whitespace
 
 import 'package:flutter/material.dart';
-import 'package:sneakers_app/theme/custom_app_theme.dart';
+import 'package:sneakers_app/theme/app_theme.dart';
+import 'package:sneakers_app/theme/typography.dart';
 
 import '../../../../utils/app_methods.dart';
 import '../../../animation/fadeanimation.dart';
-import '../../../utils/constants.dart';
 import '../../../view/bag/widget/empty_list.dart';
 import '../../../data/dummy_data.dart';
 import '../../../models/models.dart';
@@ -59,10 +59,10 @@ class _BodyBagViewState extends State<BodyBagView>
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text("My Bag", style: AppThemes.bagTitle),
+            Text('My Bag', style: context.text.displaySmall),
             Text(
               "Total ${lengthsOfItemsOnBag} Items",
-              style: AppThemes.bagTotalPrice,
+              style: context.text.labelLarge?.copyWith(color: context.colors.onSurfaceVariant),
             ),
           ],
         ),
@@ -78,11 +78,11 @@ class _BodyBagViewState extends State<BodyBagView>
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         minWidth: width / 1.2,
         height: height / 15,
-        color: AppConstantsColor.materialButtonColor,
+        color: context.colors.primary,
         onPressed: () {},
         child: Text(
           "NEXT",
-          style: TextStyle(color: AppConstantsColor.lightTextColor),
+          style: TextStyle(color: Colors.white),
         ),
       ),
     );
@@ -148,12 +148,12 @@ class _BodyBagViewState extends State<BodyBagView>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(currentBagItem.model,
-                              style: AppThemes.bagProductModel),
+                              style: context.text.titleMedium),
                           SizedBox(
                             height: 4,
                           ),
-                          Text("\$${currentBagItem.price}",
-                              style: AppThemes.bagProductPrice),
+                          Text(currentBagItem.price.formatted,
+                              style: context.text.titleLarge?.copyWith(fontFeatures: AppTypography.tabular)),
                           SizedBox(
                             height: 10,
                           ),
@@ -183,7 +183,7 @@ class _BodyBagViewState extends State<BodyBagView>
                               SizedBox(
                                 width: 10,
                               ),
-                              Text("1", style: AppThemes.bagProductNumOfShoe),
+                              Text("1", style: context.text.titleMedium),
                               SizedBox(
                                 width: 10,
                               ),
@@ -228,9 +228,9 @@ class _BodyBagViewState extends State<BodyBagView>
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("TOTAL", style: AppThemes.bagTotalPrice),
-                Text("\$${AppMethods.sumOfItemsOnBag()}",
-                    style: AppThemes.bagSumOfItemOnBag),
+                Text("TOTAL", style: context.text.labelLarge?.copyWith(color: context.colors.onSurfaceVariant)),
+                Text(AppMethods.sumOfItemsOnBag().formatted,
+                    style: context.text.titleLarge?.copyWith(fontFeatures: AppTypography.tabular)),
               ],
             ),
           ),

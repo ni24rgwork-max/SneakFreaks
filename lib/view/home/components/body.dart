@@ -3,10 +3,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:sneakers_app/theme/custom_app_theme.dart';
+import 'package:sneakers_app/theme/app_theme.dart';
+import 'package:sneakers_app/theme/typography.dart';
 
 import '../../../../animation/fadeanimation.dart';
-import '../../../../utils/constants.dart';
 import '../../../../models/shoe_model.dart';
 import '../../../../view/detail/detail_screen.dart';
 import '../../../data/dummy_data.dart';
@@ -70,8 +70,8 @@ class _BodyState extends State<Body> {
                       style: TextStyle(
                           fontSize: selectedIndexOfCategory == index ? 21 : 18,
                           color: selectedIndexOfCategory == index
-                              ? AppConstantsColor.darkTextColor
-                              : AppConstantsColor.unSelectedTextColor,
+                              ? context.colors.onSurface
+                              : context.colors.onSurfaceVariant,
                           fontWeight: selectedIndexOfCategory == index
                               ? FontWeight.bold
                               : FontWeight.w400),
@@ -113,8 +113,8 @@ class _BodyState extends State<Body> {
                             fontSize:
                                 selectedIndexOfFeatured == index ? 19 : 17,
                             color: selectedIndexOfFeatured == index
-                                ? AppConstantsColor.darkTextColor
-                                : AppConstantsColor.unSelectedTextColor,
+                                ? context.colors.onSurface
+                                : context.colors.onSurfaceVariant,
                             fontWeight: selectedIndexOfFeatured == index
                                 ? FontWeight.bold
                                 : FontWeight.w400),
@@ -164,7 +164,7 @@ class _BodyState extends State<Body> {
                           child: Row(
                             children: [
                               Text(model.name,
-                                  style: AppThemes.homeProductName),
+                                  style: context.text.titleMedium?.copyWith(color: Colors.white)),
                               SizedBox(
                                 width: 120,
                               ),
@@ -185,7 +185,7 @@ class _BodyState extends State<Body> {
                         child: FadeAnimation(
                           delay: 1.5,
                           child: Text(model.model,
-                              style: AppThemes.homeProductModel),
+                              style: context.text.headlineSmall?.copyWith(color: Colors.white)),
                         ),
                       ),
                       Positioned(
@@ -193,8 +193,8 @@ class _BodyState extends State<Body> {
                         left: 10,
                         child: FadeAnimation(
                           delay: 2,
-                          child: Text("\$${model.price.toStringAsFixed(2)}",
-                              style: AppThemes.homeProductPrice),
+                          child: Text(model.price.formatted,
+                              style: context.text.titleMedium?.copyWith(color: Colors.white, fontFeatures: AppTypography.tabular)),
                         ),
                       ),
                       Positioned(
@@ -246,7 +246,7 @@ class _BodyState extends State<Body> {
       margin: EdgeInsets.symmetric(horizontal: 20),
       child: Row(
         children: [
-          Text("More", style: AppThemes.homeMoreText),
+          Text("More", style: context.text.headlineSmall),
           Expanded(child: Container()),
           IconButton(
               onPressed: () {},
@@ -288,7 +288,7 @@ class _BodyState extends State<Body> {
                 height: height / 4.3,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
-                  color: Colors.white,
+                  color: context.colors.surfaceContainerLowest,
                 ),
                 child: Stack(
                   children: [
@@ -306,7 +306,7 @@ class _BodyState extends State<Body> {
                                   child: FadeAnimation(
                                 delay: 1.5,
                                 child: Text("NEW",
-                                    style: AppThemes.homeGridNewText),
+                                    style: context.text.labelLarge?.copyWith(color: Colors.white)),
                               ))),
                         ),
                       ),
@@ -317,7 +317,7 @@ class _BodyState extends State<Body> {
                         onPressed: () {},
                         icon: Icon(
                           Icons.favorite_border,
-                          color: AppConstantsColor.darkTextColor,
+                          color: context.colors.onSurface,
                         ),
                       ),
                     ),
@@ -351,7 +351,7 @@ class _BodyState extends State<Body> {
                           height: height / 42,
                           child: FittedBox(
                             child: Text("${model.name} ${model.model}",
-                                style: AppThemes.homeGridNameAndModel),
+                                style: context.text.titleSmall),
                           ),
                         ),
                       ),
@@ -366,8 +366,8 @@ class _BodyState extends State<Body> {
                           height: height / 42,
                           child: FittedBox(
                             child: Text(
-                              "\$${model.price.toStringAsFixed(2)}",
-                              style: AppThemes.homeGridPrice
+                              model.price.formatted,
+                              style: context.text.titleMedium?.copyWith(fontFeatures: AppTypography.tabular)
                             ),
                           ),
                         ),

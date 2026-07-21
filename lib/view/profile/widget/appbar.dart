@@ -1,35 +1,22 @@
-// ignore_for_file: prefer_const_constructors
-
 import 'package:flutter/material.dart';
-import 'package:sneakers_app/theme/custom_app_theme.dart';
 
-import '../../../utils/constants.dart';
+import 'package:sneakers_app/theme/app_theme.dart';
 
-PreferredSize? customAppBarProfile() {
+PreferredSizeWidget customAppBarProfile(BuildContext context) {
   return PreferredSize(
-    preferredSize: Size.fromHeight(60),
+    preferredSize: const Size.fromHeight(60),
     child: AppBar(
-     
       centerTitle: true,
-      elevation: 0,
       backgroundColor: Colors.transparent,
       title: Padding(
-        padding: EdgeInsets.only(
-          top: 8.0,
-        ),
-        child: Text(
-          "My Profile",
-          style: AppThemes.profileAppBarTitle,
-        ),
+        padding: const EdgeInsets.only(top: 8.0),
+        child: Text('My Profile', style: context.text.titleLarge),
       ),
-      actions: const [
+      actions: [
         Padding(
-          padding: EdgeInsets.only(top: 8.0, right: 5),
-          child: Icon(
-            Icons.more_vert,
-            color: AppConstantsColor.darkTextColor,
-          ),
-        )
+          padding: const EdgeInsets.only(top: 8.0, right: 5),
+          child: Icon(Icons.more_vert, color: context.colors.onSurface),
+        ),
       ],
     ),
   );

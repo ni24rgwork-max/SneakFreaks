@@ -1,11 +1,11 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace
 
 import 'package:flutter/material.dart';
-import 'package:sneakers_app/theme/custom_app_theme.dart';
+import 'package:sneakers_app/theme/app_theme.dart';
+import 'package:sneakers_app/theme/typography.dart';
 
 import '../../../../animation/fadeanimation.dart';
 import '../../../../models/models.dart';
-import '../../../../utils/constants.dart';
 import '../../../../view/profile/widget/repeated_list.dart';
 import '../../../data/dummy_data.dart';
 
@@ -63,14 +63,14 @@ class _BodyProfileState extends State<BodyProfile> {
             children: [
               Text(
                 "John Doe",
-                style: AppThemes.profileDevName
+                style: context.text.headlineSmall
               ),
               Text(
                 "Flutter Developer",
                 style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.w500,
-                    color: Colors.grey),
+                    color: context.colors.onSurfaceVariant),
               ),
             ],
           ),
@@ -81,7 +81,7 @@ class _BodyProfileState extends State<BodyProfile> {
               onPressed: () {},
               icon: Icon(
                 Icons.edit_outlined,
-                color: Colors.grey,
+                color: context.colors.onSurfaceVariant,
               ))
         ],
       ),
@@ -104,7 +104,7 @@ class _BodyProfileState extends State<BodyProfile> {
                 "My Status",
                 style: TextStyle(
                     fontWeight: FontWeight.w500,
-                    color: Colors.grey,
+                    color: context.colors.onSurfaceVariant,
                     fontSize: 15),
               ),
             ),
@@ -152,7 +152,7 @@ class _BodyProfileState extends State<BodyProfile> {
                                   status.txt,
                                   style: TextStyle(
                                       fontWeight: FontWeight.w600,
-                                      color: AppConstantsColor.lightTextColor,
+                                      color: Colors.white,
                                       fontSize: 16),
                                 ),
                               ],
@@ -183,15 +183,13 @@ class _BodyProfileState extends State<BodyProfile> {
               "    Dashboard",
               style: TextStyle(
                   fontWeight: FontWeight.w500,
-                  color: Colors.grey,
+                  color: context.colors.onSurfaceVariant,
                   fontSize: 15),
             ),
             SizedBox(
               height: 10,
             ),
             RoundedLisTile(
-              width: width,
-              height: height,
               leadingBackColor: Colors.green[600],
               icon: Icons.wallet_travel_outlined,
               title: "Payments",
@@ -209,12 +207,12 @@ class _BodyProfileState extends State<BodyProfile> {
                     Text(
                       "2 New",
                       style: TextStyle(
-                          color: AppConstantsColor.lightTextColor,
+                          color: Colors.white,
                           fontWeight: FontWeight.w500),
                     ),
                     Icon(
                       Icons.arrow_forward_ios,
-                      color: AppConstantsColor.lightTextColor,
+                      color: Colors.white,
                       size: 15,
                     )
                   ],
@@ -222,8 +220,6 @@ class _BodyProfileState extends State<BodyProfile> {
               ),
             ),
             RoundedLisTile(
-              width: width,
-              height: height,
               leadingBackColor: Colors.yellow[600],
               icon: Icons.archive,
               title: "Achievement's",
@@ -239,7 +235,7 @@ class _BodyProfileState extends State<BodyProfile> {
                   children: [
                     Icon(
                       Icons.arrow_forward_ios,
-                      color: AppConstantsColor.darkTextColor,
+                      color: context.colors.onSurface,
                       size: 15,
                     )
                   ],
@@ -247,8 +243,6 @@ class _BodyProfileState extends State<BodyProfile> {
               ),
             ),
             RoundedLisTile(
-              width: width,
-              height: height,
               leadingBackColor: Colors.grey[400],
               icon: Icons.shield,
               title: "Privacy",
@@ -266,12 +260,12 @@ class _BodyProfileState extends State<BodyProfile> {
                     Text(
                       "Action Needed  ",
                       style: TextStyle(
-                          color: AppConstantsColor.lightTextColor,
+                          color: Colors.white,
                           fontWeight: FontWeight.w500),
                     ),
                     Icon(
                       Icons.arrow_forward_ios,
-                      color: AppConstantsColor.lightTextColor,
+                      color: Colors.white,
                       size: 15,
                     )
                   ],
@@ -298,7 +292,7 @@ class _BodyProfileState extends State<BodyProfile> {
               "    My Account",
               style: TextStyle(
                   fontWeight: FontWeight.w500,
-                  color: Colors.grey,
+                  color: context.colors.onSurfaceVariant,
                   fontSize: 15),
             ),
             SizedBox(

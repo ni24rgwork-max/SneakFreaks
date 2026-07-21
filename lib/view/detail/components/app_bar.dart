@@ -1,30 +1,26 @@
-// ignore_for_file: prefer_const_constructors
-
 import 'package:flutter/material.dart';
-import 'package:sneakers_app/theme/custom_app_theme.dart';
-import 'package:sneakers_app/utils/constants.dart';
 
-PreferredSize? customAppBarDe(ctx) {
+import 'package:sneakers_app/theme/app_theme.dart';
+
+/// [brand] is passed in rather than hardcoded to "Nike" — this is a
+/// multi-brand storefront, so the detail header must follow the product.
+PreferredSizeWidget customAppBarDe(BuildContext context, String brand) {
   return PreferredSize(
     preferredSize: const Size.fromHeight(60),
     child: AppBar(
-      elevation: 0,
       backgroundColor: Colors.transparent,
       centerTitle: true,
-      title: Text("Nike", style: AppThemes.detailsAppBar),
+      title: Text(brand, style: context.text.titleLarge),
       leading: IconButton(
-        onPressed: () {
-          Navigator.pop(ctx);
-        },
-        icon: Icon(
-          Icons.arrow_back,
-          color: AppConstantsColor.darkTextColor,
-        ),
+        onPressed: () => Navigator.pop(context),
+        icon: const Icon(Icons.arrow_back),
+        color: context.colors.onSurface,
       ),
       actions: [
         IconButton(
           onPressed: () {},
-          icon: Icon(Icons.favorite_border),
+          icon: const Icon(Icons.favorite_border),
+          color: context.colors.onSurface,
         ),
       ],
     ),

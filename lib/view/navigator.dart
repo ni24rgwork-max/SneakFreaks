@@ -1,37 +1,26 @@
-// ignore_for_file: prefer_final_fields, prefer_const_constructors, use_key_in_widget_constructors
-
-import 'package:custom_navigation_bar/custom_navigation_bar.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:sneakers_app/utils/constants.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:sneakers_app/view/bag/bag_screen.dart';
 import 'package:sneakers_app/view/home/home_screen.dart';
 import 'package:sneakers_app/view/profile/profile_screen.dart';
+import 'package:sneakers_app/widget/theme_switcher.dart';
 
-class MainNavigator extends StatefulWidget {
+class MainNavigator extends ConsumerStatefulWidget {
+  const MainNavigator({super.key});
+
   @override
-  _MainNavigatorState createState() => _MainNavigatorState();
+  ConsumerState<MainNavigator> createState() => _MainNavigatorState();
 }
 
-class _MainNavigatorState extends State<MainNavigator> {
-  PageController _pageController = PageController();
+class _MainNavigatorState extends ConsumerState<MainNavigator> {
+  static const _initialTab = int.fromEnvironment('TAB');
 
-  int _selectedIndex = 0;
-  List<Widget> _screen = [
-    HomeScreen(),
-    MyBagScreen(),
-    Profile(),
-  ];
+  final PageController _pageController =
+      PageController(initialPage: _initialTab);
+  int _selectedIndex = _initialTab;
 
-  void _onPageChanged(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  void _onItemTapped(int selectedIndex) {
-    _pageController.jumpToPage(selectedIndex);
-  }
+  static const _screens = [HomeScreen(), MyBagScreen(), Profile()];
 
   @override
   void dispose() {
@@ -39,36 +28,46 @@ class _MainNavigatorState extends State<MainNavigator> {
     super.dispose();
   }
 
+  // jumpToPage rather than animateToPage is deliberate: sliding through an
+  // intermediate tab is disorienting. A cross-fade is the right motion here.
+  void _onDestinationSelected(int index) => _pageController.jumpToPage(index);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: PageView(
-        controller: _pageController,
-        children: _screen,
-        onPageChanged: _onPageChanged,
-        physics: NeverScrollableScrollPhysics(),
+      body: Stack(
+        children: [
+          PageView(
+            controller: _pageController,
+            physics: const NeverScrollableScrollPhysics(),
+            onPageChanged: (i) => setState(() => _selectedIndex = i),
+            children: _screens,
+          ),
+          // Comparison affordance while the two brand directions are still
+          // being evaluated. Delete once a palette is chosen.
+          const Positioned(right: 10, top: 6, child: ThemeSwitcher()),
+        ],
       ),
-      bottomNavigationBar: CustomNavigationBar(
-        iconSize: 27.0,
-        bubbleCurve: Curves.linear,
-        selectedColor: AppConstantsColor.materialButtonColor,
-        strokeColor: AppConstantsColor.materialButtonColor,
-        unSelectedColor: Color(0xffacacac),
-        backgroundColor: Colors.white,
-        scaleFactor: 0.1,
-        items: [
-          CustomNavigationBarItem(
-            icon: Icon(CupertinoIcons.home),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _selectedIndex,
+        onDestinationSelected: _onDestinationSelected,
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home),
+            label: 'Home',
           ),
-          CustomNavigationBarItem(
-            icon: Icon(CupertinoIcons.shopping_cart),
+          NavigationDestination(
+            icon: Icon(Icons.shopping_bag_outlined),
+            selectedIcon: Icon(Icons.shopping_bag),
+            label: 'Bag',
           ),
-          CustomNavigationBarItem(
-            icon: Icon(CupertinoIcons.person),
+          NavigationDestination(
+            icon: Icon(Icons.person_outline),
+            selectedIcon: Icon(Icons.person),
+            label: 'Profile',
           ),
         ],
-        onTap: _onItemTapped,
-        currentIndex: _selectedIndex,
       ),
     );
   }

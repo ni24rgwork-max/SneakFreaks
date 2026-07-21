@@ -6,11 +6,11 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../../../animation/fadeanimation.dart';
 import '../../../../../utils/app_methods.dart';
-import '../../../../../utils/constants.dart';
 import '../../../../../models/shoe_model.dart';
 import '../../../data/dummy_data.dart';
 import '../../../models/models.dart';
-import '../../../theme/custom_app_theme.dart';
+import 'package:sneakers_app/theme/app_theme.dart';
+import 'package:sneakers_app/theme/typography.dart';
 
 class DetailsBody extends StatefulWidget {
   ShoeModel model;
@@ -43,7 +43,7 @@ class details extends State<DetailsBody> {
               width: width / 1.1,
               child: Divider(
                 thickness: 1.4,
-                color: Colors.grey,
+                color: context.colors.onSurfaceVariant,
               ),
             ),
             SizedBox(
@@ -136,7 +136,7 @@ class details extends State<DetailsBody> {
       height: height / 14,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color: Colors.grey[300],
+        color: context.colors.surfaceContainerHigh,
       ),
       child: Image(
         image: AssetImage(widget.model.imgAddress),
@@ -163,7 +163,7 @@ class details extends State<DetailsBody> {
               width: width / 5,
               height: height / 14,
               decoration: BoxDecoration(
-                color: Colors.grey[300],
+                color: context.colors.surfaceContainerHigh,
                 image: DecorationImage(
                   image: AssetImage(widget.model.imgAddress),
                   fit: BoxFit.cover,
@@ -175,7 +175,7 @@ class details extends State<DetailsBody> {
               child: Center(
                 child: Icon(
                   Icons.play_circle_fill,
-                  color: AppConstantsColor.lightTextColor,
+                  color: Colors.white,
                   size: 30,
                 ),
               ),
@@ -194,13 +194,13 @@ class details extends State<DetailsBody> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         minWidth: width / 1.2,
         height: height / 15,
-        color: AppConstantsColor.materialButtonColor,
+        color: context.colors.primary,
         onPressed: () {
           AppMethods.addToCart(widget.model, context);
         },
         child: Text(
           "ADD TO BAG",
-          style: TextStyle(color: AppConstantsColor.lightTextColor),
+          style: context.text.labelLarge?.copyWith(color: context.colors.onPrimary),
         ),
       ),
     );
@@ -219,7 +219,7 @@ class details extends State<DetailsBody> {
               width: width / 4.5,
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.grey, width: 1)),
+                  border: Border.all(color: context.brand.interactiveBorder, width: 1)),
               child: Center(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -267,7 +267,7 @@ class details extends State<DetailsBody> {
                               width: 1.5),
                           color: _isSelectedSize == index
                               ? Colors.black
-                              : AppConstantsColor.backgroundColor,
+                              : context.colors.surface,
                         ),
                         child: Center(
                           child: Text(
@@ -300,7 +300,7 @@ class details extends State<DetailsBody> {
             "Size",
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: AppConstantsColor.darkTextColor,
+              color: context.colors.onSurface,
               fontSize: 22,
             ),
           ),
@@ -322,7 +322,7 @@ class details extends State<DetailsBody> {
                       _isSelectedCountry ? FontWeight.w400 : FontWeight.bold,
                   color: _isSelectedCountry
                       ? Colors.grey
-                      : AppConstantsColor.darkTextColor,
+                      : context.colors.onSurface,
                   fontSize: 19,
                 ),
               ),
@@ -342,7 +342,7 @@ class details extends State<DetailsBody> {
                   fontWeight:
                       _isSelectedCountry ? FontWeight.bold : FontWeight.w400,
                   color: _isSelectedCountry
-                      ? AppConstantsColor.darkTextColor
+                      ? context.colors.onSurface
                       : Colors.grey,
                   fontSize: 20,
                 ),
@@ -362,7 +362,7 @@ class details extends State<DetailsBody> {
         padding: EdgeInsets.only(right: 280),
         height: height / 26,
         child: FittedBox(
-            child: Text('MORE DETAILS', style: AppThemes.detailsMoreText)),
+            child: Text('MORE DETAILS', style: context.text.labelLarge?.copyWith(decoration: TextDecoration.underline))),
       ),
     );
   }
@@ -376,7 +376,7 @@ class details extends State<DetailsBody> {
         height: height / 9,
         child: Text(
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin tincidunt laoreet enim, eget sodales ligula semper at. Sed id aliquet eros, nec vestibulum felis. Nunc maximus aliquet aliquam. Quisque eget sapien at velit cursus tincidunt. Duis tempor lacinia erat eget fermentum.",
-            style: AppThemes.detailsProductDescriptions),
+            style: context.text.bodyMedium?.copyWith(color: context.colors.onSurfaceVariant)),
       ),
     );
   }
@@ -392,12 +392,12 @@ class details extends State<DetailsBody> {
             style: TextStyle(
               fontSize: 21,
               fontWeight: FontWeight.bold,
-              color: AppConstantsColor.darkTextColor,
+              color: context.colors.onSurface,
             ),
           ),
           Expanded(child: Container()),
-          Text('\$${widget.model.price.toStringAsFixed(2)}',
-              style: AppThemes.detailsProductPrice),
+          Text(widget.model.price.formatted,
+              style: context.text.titleLarge?.copyWith(fontFeatures: AppTypography.tabular)),
         ],
       ),
     );

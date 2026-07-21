@@ -1,46 +1,31 @@
-// ignore_for_file: prefer_const_constructors
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:sneakers_app/theme/custom_app_theme.dart';
 
-import '../../../utils/constants.dart';
+import 'package:sneakers_app/theme/app_theme.dart';
 
-PreferredSize? customAppBar() {
+PreferredSizeWidget customAppBar(BuildContext context) {
   return PreferredSize(
-    preferredSize: Size.fromHeight(70),
+    preferredSize: const Size.fromHeight(70),
     child: AppBar(
-      elevation: 0,
       backgroundColor: Colors.transparent,
       title: Padding(
-        padding: EdgeInsets.only(top: 8.0),
-        child: Text(
-          "Discover",
-          style: AppThemes.homeAppBar
-        ),
+        padding: const EdgeInsets.only(top: 8.0),
+        child: Text('Discover', style: context.text.displaySmall),
       ),
       actions: [
         Padding(
-          padding: EdgeInsets.only(top: 8.0),
+          padding: const EdgeInsets.only(top: 8.0),
           child: IconButton(
-            icon: Icon(
-              CupertinoIcons.search,
-              color: AppConstantsColor.darkTextColor,
-              size: 25,
-            ),
+            icon: const Icon(CupertinoIcons.search, size: 25),
+            color: context.colors.onSurface,
             onPressed: () {},
           ),
         ),
-         
         Padding(
-          padding: EdgeInsets.only(top: 8.0, right: 4),
+          padding: const EdgeInsets.only(top: 8.0, right: 4),
           child: IconButton(
-            icon: Icon(
-               CupertinoIcons.bell,
-              color: AppConstantsColor.darkTextColor,
-              size: 25,
-            ),
+            icon: const Icon(CupertinoIcons.bell, size: 25),
+            color: context.colors.onSurface,
             onPressed: () {},
           ),
         ),

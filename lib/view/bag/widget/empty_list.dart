@@ -1,32 +1,37 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, use_key_in_widget_constructors, sized_box_for_whitespace
-
 import 'package:flutter/material.dart';
 
 import 'package:sneakers_app/animation/fadeanimation.dart';
-import 'package:sneakers_app/theme/custom_app_theme.dart';
+import 'package:sneakers_app/theme/app_theme.dart';
 
 class EmptyList extends StatelessWidget {
+  const EmptyList({super.key});
+
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    final height = MediaQuery.of(context).size.height;
-    return SingleChildScrollView(
-      child: Container(
-        width: width,
-        height: height / 1.4,
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 48),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          spacing: 8,
           children: [
+            Icon(
+              Icons.shopping_bag_outlined,
+              size: 56,
+              color: context.colors.onSurfaceVariant,
+            ),
             FadeAnimation(
               delay: 0.5,
-              child:
-                  Text("No shoes added!", style: AppThemes.bagEmptyListTitle),
+              child: Text('No shoes added!', style: context.text.headlineSmall),
             ),
             FadeAnimation(
               delay: 0.5,
               child: Text(
-                "Once you have added, come back:)",
-                style: AppThemes.bagEmptyListSubTitle,
+                'Once you have added, come back:)',
+                textAlign: TextAlign.center,
+                style: context.text.bodyLarge?.copyWith(
+                  color: context.colors.onSurfaceVariant,
+                ),
               ),
             ),
           ],
