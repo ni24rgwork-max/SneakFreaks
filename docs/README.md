@@ -1,6 +1,6 @@
 # Documentation
 
-Sneakerhaus — AI-powered premium multi-brand sneaker store.
+SneakFreaks — AI-powered premium multi-brand sneaker store.
 Owner: **[@ni24rgwork-max](https://github.com/ni24rgwork-max)**
 
 | Doc | Read it when |

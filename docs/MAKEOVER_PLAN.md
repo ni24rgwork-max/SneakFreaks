@@ -1,4 +1,4 @@
-# Sneakerhaus — Modernization & Makeover Plan
+# SneakFreaks — Modernization & Makeover Plan
 
 Owner: [@ni24rgwork-max](https://github.com/ni24rgwork-max)
 Audit date: 2026-07-21 · Flutter 3.44.6 / Dart 3.12.2

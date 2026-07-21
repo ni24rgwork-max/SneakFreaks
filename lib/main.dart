@@ -27,7 +27,7 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Sneakers Shop',
+      title: 'SneakFreaks',
       theme: AppTheme.of(Brightness.light),
       darkTheme: AppTheme.of(Brightness.dark),
       themeMode: ref.watch(themeControllerProvider),

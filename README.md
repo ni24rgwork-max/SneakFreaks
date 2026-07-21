@@ -1,4 +1,4 @@
-# Sneakerhaus
+# SneakFreaks
 
 **An AI-powered premium multi-brand sneaker store.** Built with Flutter, priced
 in ₹, designed for India.
