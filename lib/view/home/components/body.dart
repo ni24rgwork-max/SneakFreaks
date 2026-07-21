@@ -25,15 +25,22 @@ class _BodyState extends State<Body> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
-    return Column(
-      children: [
-        topCategoriesWidget(width, height),
-        SizedBox(height: 10),
-        middleCategoriesWidget(width, height),
-        SizedBox(height: 5),
-        moreTextWidget(),
-        lastCategoriesWidget(width, height),
-      ],
+    // The sections below are sized as fractions of the full screen height, which
+    // sums to more than the space the Scaffold body actually gets once the app
+    // bar and bottom nav are subtracted. Scrolling absorbs the difference
+    // instead of overflowing on shorter viewports.
+    return SingleChildScrollView(
+      physics: BouncingScrollPhysics(),
+      child: Column(
+        children: [
+          topCategoriesWidget(width, height),
+          SizedBox(height: 10),
+          middleCategoriesWidget(width, height),
+          SizedBox(height: 5),
+          moreTextWidget(),
+          lastCategoriesWidget(width, height),
+        ],
+      ),
     );
   }
 
@@ -243,7 +250,7 @@ class _BodyState extends State<Body> {
           Expanded(child: Container()),
           IconButton(
               onPressed: () {},
-              icon: FaIcon(
+              icon: Icon(
                 CupertinoIcons.arrow_right,
                 size: 27,
               ))

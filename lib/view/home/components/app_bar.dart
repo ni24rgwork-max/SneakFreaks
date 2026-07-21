@@ -24,7 +24,7 @@ PreferredSize? customAppBar() {
         Padding(
           padding: EdgeInsets.only(top: 8.0),
           child: IconButton(
-            icon: FaIcon(
+            icon: Icon(
               CupertinoIcons.search,
               color: AppConstantsColor.darkTextColor,
               size: 25,
@@ -36,7 +36,7 @@ PreferredSize? customAppBar() {
         Padding(
           padding: EdgeInsets.only(top: 8.0, right: 4),
           child: IconButton(
-            icon: FaIcon(
+            icon: Icon(
                CupertinoIcons.bell,
               color: AppConstantsColor.darkTextColor,
               size: 25,

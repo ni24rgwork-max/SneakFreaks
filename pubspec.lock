@@ -74,10 +74,10 @@ packages:
     dependency: "direct dev"
     description:
       name: flutter_lints
-      sha256: b543301ad291598523947dc534aaddc5aaad597b709d2426d3a0e0d44c5cb493
+      sha256: "3105dc8492f6183fb076ccf1f351ac3d60564bff92e20bfc4af9cc1651f4e7e1"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.4"
+    version: "6.0.0"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -87,10 +87,10 @@ packages:
     dependency: "direct main"
     description:
       name: font_awesome_flutter
-      sha256: b9011df3a1fa02993630b8fb83526368cf2206a711259830325bab2f1d2a4eb0
+      sha256: "09dcde8ab90ffae1a7d65ff2ef96fc62a17ad9d0ce7c127b317ded676b0d5935"
       url: "https://pub.dev"
     source: hosted
-    version: "10.12.0"
+    version: "11.0.0"
   leak_tracker:
     dependency: transitive
     description:
@@ -119,10 +119,10 @@ packages:
     dependency: transitive
     description:
       name: lints
-      sha256: a2c3d198cb5ea2e179926622d433331d8b58374ab8f29cdda6e863bd62fd369c
+      sha256: "12f842a479589fea194fe5c5a3095abc7be0c1f2ddfa9a0e76aed1dbd26a87df"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.1"
+    version: "6.1.0"
   matcher:
     dependency: transitive
     description:
@@ -159,10 +159,10 @@ packages:
     dependency: "direct main"
     description:
       name: simple_animations
-      sha256: "79acf025f196001d4680280f67b4d77ca828459b23498606d2fb130a4961046e"
+      sha256: "0e90dc63183212b2c47c7969bd77cf7648be9f62c9461837ae4cbe8a62ff3369"
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.1"
+    version: "5.3.0"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -200,22 +200,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.1"
-  supercharged:
-    dependency: "direct main"
-    description:
-      name: supercharged
-      sha256: ab49c848b33e28243f5ce82b976736de17d0852b71d0dfbde53fbb5e2ecca7cb
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.1.1"
-  supercharged_dart:
-    dependency: transitive
-    description:
-      name: supercharged_dart
-      sha256: cb95edda32eacd27664089700a750120be41daa84aa6cd2aeded46227c16b867
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.1.1"
   term_glyph:
     dependency: transitive
     description:
@@ -249,5 +233,5 @@ packages:
     source: hosted
     version: "15.2.0"
 sdks:
-  dart: ">=3.10.0-0 <4.0.0"
-  flutter: ">=3.27.0"
+  dart: ">=3.12.0 <4.0.0"
+  flutter: ">=3.44.0"
