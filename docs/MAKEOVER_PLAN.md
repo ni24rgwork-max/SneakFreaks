@@ -1,7 +1,13 @@
-# Sneakers Shop — Modernization & Makeover Plan
+# Sneakerhaus — Modernization & Makeover Plan
 
+Owner: [@ni24rgwork-max](https://github.com/ni24rgwork-max)
 Audit date: 2026-07-21 · Flutter 3.44.6 / Dart 3.12.2
 All package versions below were queried live from pub.dev on the audit date, not recalled.
+
+> **This is the original audit, kept as a record.** Phases 1–3 are now complete;
+> see the phase table in §8 for current status. For how the code is shaped
+> today read [ARCHITECTURE.md](ARCHITECTURE.md); for the AI recommendation
+> workstream read [AI.md](AI.md).
 
 ---
 
@@ -533,10 +539,10 @@ Ordered so each phase is independently shippable and nothing gets built twice.
 | Phase | Work | Why here |
 |---|---|---|
 | **0** ✅ | Modernize toolchain, remove footprints, fix overflow | Done. |
-| **1** | Design system: `ColorScheme` ×2, `TextTheme`, `BrandTokens`, bundled fonts, delete `AppThemes` + `AppConstantsColor`, `themeMode` toggle | Everything downstream consumes these tokens. Doing this after the UI work means touching every widget twice. |
-| **2** | Money + INR: `Money` type, `PriceText`, `intl`, reprice catalogue, MRP/discount UI, ARB scaffolding | Small, self-contained, visible client win. |
-| **3** | State management: Riverpod, kill the global list, real `Cart` with quantities, fix the stale-count bug, persist with `hive_ce`/`drift` | Must precede backend work. This is the load-bearing refactor. |
-| **4** | Navigation: `go_router`, typed routes, deep links | Needs to exist before payment-gateway returns and push notifications. |
+| **1** ✅ | Design system: `ColorScheme` ×2, `TextTheme`, `BrandTokens`, bundled fonts, delete `AppThemes` + `AppConstantsColor`, `themeMode` toggle | Everything downstream consumes these tokens. Doing this after the UI work means touching every widget twice. |
+| **2** ✅ | Money + INR: `Money` type, `PriceText`, `intl`, reprice catalogue, MRP/discount UI, ARB scaffolding | Small, self-contained, visible client win. |
+| **3** ✅ | State management: Riverpod, kill the global list, real `Cart` with quantities, fix the stale-count bug, persist with `hive_ce`/`drift` | Must precede backend work. This is the load-bearing refactor. |
+| **4** ◀ next | Navigation: `go_router`, typed routes, deep links | Needs to exist before payment-gateway returns and push notifications. |
 | **5** | UI makeover: M3 `NavigationBar`, `CustomScrollView` home, PDP rebuild, bag rebuild, `skeletonizer` | Now it's cheap — tokens, state and routing all exist. |
 | **6** | Motion: `flutter_animate`, `OpenContainer`, Lottie states, haptics, reduced-motion | Polish pass on a stable UI. |
 | **7** | Backend | Separate conversation. Phase 3's model layer determines how smooth this is. |
