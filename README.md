@@ -140,6 +140,11 @@ Product photography in `assets/` is placeholder material and is **not** cleared
 for commercial use. It must be replaced with licensed or own-shot imagery
 before this ships.
 
+## Third-party assets
+
+Bundled fonts are **Inter** and **Archivo**, both under the SIL Open Font
+License 1.1 — see `assets/fonts/OFL-Inter.txt` and `assets/fonts/OFL-Archivo.txt`.
+
 ## License
 
 Apache-2.0 — see [LICENSE](LICENSE).
