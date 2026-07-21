@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:sneakers_app/data/preferences.dart';
+import 'harness.dart';
 import 'package:sneakers_app/providers/catalogue_provider.dart';
 import 'package:sneakers_app/theme/app_theme.dart';
 import 'package:sneakers_app/view/home/home_screen.dart';
@@ -12,8 +12,7 @@ import 'package:sneakers_app/view/home/home_screen.dart';
 /// section that silently fails to render is caught here rather than by
 /// scrolling a simulator and hoping.
 Future<void> pumpFeed(WidgetTester tester) async {
-  SharedPreferences.setMockInitialValues({});
-  final prefs = await SharedPreferences.getInstance();
+  final overrides = await testOverrides();
 
   tester.view.physicalSize = const Size(1200, 6000);
   tester.view.devicePixelRatio = 1.0;
@@ -21,7 +20,7 @@ Future<void> pumpFeed(WidgetTester tester) async {
 
   await tester.pumpWidget(
     ProviderScope(
-      overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
+      overrides: overrides,
       child: MaterialApp(
         theme: AppTheme.of(Brightness.light),
         home: const HomeScreen(),

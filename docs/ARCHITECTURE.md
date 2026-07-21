@@ -199,6 +199,28 @@ Layout bugs this replaced, all caused by fixed screen-fraction sizing:
 `height / 9` around the description, slicing it mid-sentence with no ellipsis;
 and `width / 9` around the "UK" label, which wrapped it onto two lines.
 
+## Loading states
+
+`catalogueProvider` is a synchronous *view* of an asynchronous source:
+
+```dart
+catalogueAsyncProvider          // AsyncNotifier — the real, awaited source
+catalogueProvider               // .value ?? const []  — what derived logic reads
+catalogueLoadingProvider        // .isLoading — what the UI reads
+```
+
+Splitting it this way meant making the catalogue async did not ripple through
+the ten derived providers built on top of it. Swapping the fixture for an HTTP
+call is a change to one method body.
+
+**Skeletons are generated from the real widget tree** (`skeletonizer`), not
+hand-built grey mocks — a mock is a second layout that drifts from the first.
+
+**Placeholder rows never reach business logic.** While loading,
+`catalogueProvider` stays empty and only the feed substitutes placeholder
+products for Skeletonizer to paint, so the cart can never resolve a line
+against a fake product.
+
 ## Indian commerce specifics
 
 These are expectations in the Indian market, not embellishments.

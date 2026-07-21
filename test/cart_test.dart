@@ -35,6 +35,7 @@ Future<ProviderContainer> makeContainer() async {
     overrides: [
       sharedPreferencesProvider.overrideWithValue(prefs),
       catalogueProvider.overrideWithValue([_airMax, _airForce]),
+      catalogueLoadingProvider.overrideWithValue(false),
     ],
   );
   addTearDown(container.dispose);
@@ -167,6 +168,7 @@ void main() {
             overrides: [
               sharedPreferencesProvider.overrideWithValue(prefs),
               catalogueProvider.overrideWithValue([_airMax, _airForce]),
+              catalogueLoadingProvider.overrideWithValue(false),
             ],
           );
 
@@ -189,6 +191,7 @@ void main() {
         overrides: [
           sharedPreferencesProvider.overrideWithValue(prefs),
           catalogueProvider.overrideWithValue([_airMax]),
+          catalogueLoadingProvider.overrideWithValue(false),
         ],
       );
       addTearDown(c.dispose);
@@ -207,6 +210,7 @@ void main() {
         overrides: [
           sharedPreferencesProvider.overrideWithValue(prefs),
           catalogueProvider.overrideWithValue([_airMax]),
+          catalogueLoadingProvider.overrideWithValue(false),
         ],
       );
       addTearDown(c.dispose);

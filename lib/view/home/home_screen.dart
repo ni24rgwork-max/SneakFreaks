@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
+import 'package:sneakers_app/models/shoe_model.dart';
 import 'package:sneakers_app/providers/catalogue_provider.dart';
 import 'package:sneakers_app/theme/app_theme.dart';
 import 'package:sneakers_app/view/home/components/app_bar.dart';
@@ -24,15 +26,32 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final newArrivals = ref.watch(newArrivalsProvider);
-    final budget = ref.watch(underBudgetProvider);
-    final trending = ref.watch(trendingProvider);
+    final loadingNow = ref.watch(catalogueLoadingProvider);
+    final placeholders = ref.watch(feedPlaceholdersProvider);
+
+    // While loading, the rails render placeholder rows for Skeletonizer to
+    // paint. The real providers stay empty so nothing downstream sees fakes.
+    List<ShoeModel> orPlaceholder(List<ShoeModel> real) =>
+        loadingNow ? placeholders : real;
+
+    final newArrivals = orPlaceholder(ref.watch(newArrivalsProvider));
+    final budget = orPlaceholder(ref.watch(underBudgetProvider));
+    final trending = orPlaceholder(ref.watch(trendingProvider));
     final brand = ref.watch(brandFilterProvider);
+    final loading = loadingNow;
 
     return SafeArea(
       child: Scaffold(
         appBar: customAppBar(context),
-        body: CustomScrollView(
+        // Skeletonizer builds the placeholder from the real widget tree, so the
+        // loading state cannot drift away from the loaded one — the failure
+        // mode of hand-built grey mocks.
+        body: Skeletonizer(
+          enabled: loading,
+          child: RefreshIndicator(
+            onRefresh: () =>
+                ref.read(catalogueAsyncProvider.notifier).refresh(),
+            child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
           slivers: [
             const SliverToBoxAdapter(child: BrandRail()),
@@ -110,7 +129,9 @@ class HomeScreen extends ConsumerWidget {
                   ),
                 ),
               ),
-          ],
+              ],
+            ),
+          ),
         ),
       ),
     );

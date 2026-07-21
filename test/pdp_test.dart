@@ -3,22 +3,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:sneakers_app/data/preferences.dart';
+import 'harness.dart';
 import 'package:sneakers_app/providers/catalogue_provider.dart';
 import 'package:sneakers_app/providers/pdp_provider.dart';
 import 'package:sneakers_app/theme/app_theme.dart';
 import 'package:sneakers_app/view/detail/detail_screen.dart';
 
 Future<ProviderContainer> pumpPdp(WidgetTester tester, String id) async {
-  SharedPreferences.setMockInitialValues({});
-  final prefs = await SharedPreferences.getInstance();
+  final overrides = await testOverrides();
 
   tester.view.physicalSize = const Size(1200, 4000);
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);
 
   final container = ProviderContainer(
-    overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
+    overrides: overrides,
   );
   addTearDown(container.dispose);
 

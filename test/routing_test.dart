@@ -4,22 +4,21 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:sneakers_app/data/preferences.dart';
+import 'harness.dart';
 import 'package:sneakers_app/providers/auth_provider.dart';
 import 'package:sneakers_app/routing/router.dart';
 import 'package:sneakers_app/routing/routes.dart';
 import 'package:sneakers_app/theme/app_theme.dart';
 
 Future<ProviderContainer> pumpApp(WidgetTester tester) async {
-  SharedPreferences.setMockInitialValues({});
-  final prefs = await SharedPreferences.getInstance();
+  final overrides = await testOverrides();
 
   tester.view.physicalSize = const Size(1200, 3000);
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);
 
   final container = ProviderContainer(
-    overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
+    overrides: overrides,
   );
   addTearDown(container.dispose);
 

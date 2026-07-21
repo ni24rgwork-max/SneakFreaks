@@ -6,12 +6,62 @@ import 'package:sneakers_app/models/shoe_model.dart';
 import 'package:sneakers_app/theme/product_palette.dart';
 import 'package:sneakers_app/utils/money.dart';
 
-/// The product catalogue.
+/// The catalogue as it actually behaves once remote: asynchronous, with a
+/// loading state the UI has to render.
 ///
-/// Currently backed by the in-memory fixture. When a backend lands this becomes
-/// an `AsyncNotifierProvider` returning `AsyncValue<List<ShoeModel>>` and every
-/// consumer already goes through this provider, so the change is contained.
-final catalogueProvider = Provider<List<ShoeModel>>((ref) => availableShoes);
+/// Backed by the in-memory fixture for now. Swapping in an HTTP call means
+/// replacing the body of [load] — nothing downstream changes, because every
+/// consumer already reads through the providers below.
+class CatalogueController extends AsyncNotifier<List<ShoeModel>> {
+  @override
+  Future<List<ShoeModel>> build() => load();
+
+  Future<List<ShoeModel>> load() async {
+    // A deliberate delay so the skeleton states are exercised in development
+    // rather than only appearing for the first time against a real network.
+    await Future<void>.delayed(const Duration(milliseconds: 700));
+    return availableShoes;
+  }
+
+  Future<void> refresh() async {
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(load);
+  }
+}
+
+final catalogueAsyncProvider =
+    AsyncNotifierProvider<CatalogueController, List<ShoeModel>>(
+        CatalogueController.new);
+
+/// Synchronous view of the catalogue, for logic that does not care about the
+/// loading state. Every derived provider below reads this, so making the source
+/// asynchronous did not ripple through them.
+final catalogueProvider = Provider<List<ShoeModel>>(
+    (ref) => ref.watch(catalogueAsyncProvider).value ?? const []);
+
+/// Whether the feed should render skeletons.
+final catalogueLoadingProvider =
+    Provider<bool>((ref) => ref.watch(catalogueAsyncProvider).isLoading);
+
+/// Stand-in rows for the loading state.
+///
+/// Skeletonizer paints the real widget tree grey, so it needs *something* to
+/// lay out. These never reach business logic — `catalogueProvider` stays empty
+/// while loading, so the cart can never resolve a line against a fake product.
+final feedPlaceholdersProvider = Provider<List<ShoeModel>>((ref) {
+  return List.generate(
+    4,
+    (i) => ShoeModel(
+      id: 'placeholder-\$i',
+      name: 'BRAND',
+      model: 'Loading product',
+      price: const Money(999900),
+      imgAddress: availableShoes.first.imgAddress,
+      modelColor: const Color(0xFF6B7280),
+    ),
+    growable: false,
+  );
+});
 
 /// Product lookup by id, used by the cart to resolve its lines.
 final productByIdProvider = Provider.family<ShoeModel?, String>((ref, id) {

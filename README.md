@@ -42,7 +42,9 @@ aspirational unless it says so.
 | Pricing UI | MRP strikethrough, % off, free-delivery threshold, inclusive-of-taxes |
 | Routing | `go_router` — per-tab stacks, deep links, auth guard |
 | Product detail | Collapsing gallery, discount block, size selector with stock states, pincode check, sticky CTA |
-| Tests | 42 tests over cart, money, feed, routing and PDP |
+| Account screen | Reflects real session — signed-out state, no fake identity |
+| Loading states | Skeletons from the real widget tree; pull-to-refresh |
+| Tests | 46 tests over cart, money, feed, routing, PDP and profile |
 
 ### Not built yet
 

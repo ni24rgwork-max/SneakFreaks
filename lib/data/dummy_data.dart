@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../models/models.dart';
+import '../models/shoe_model.dart';
 import '../utils/money.dart';
 
 final List<ShoeModel> availableShoes = [
@@ -145,33 +145,6 @@ final List<ShoeModel> availableShoes = [
     },
     isNew: true,
     tags: const ['lifestyle', 'monsoon'],
-  ),
-];
-
-final List<UserStatus> userStatus = [
-  UserStatus(
-    emoji: '😴',
-    txt: "Away",
-    selectColor: const Color(0xff121212),
-    unSelectColor: const Color(0xffbfbfbf),
-  ),
-  UserStatus(
-    emoji: '💻',
-    txt: "At Work",
-    selectColor: const Color(0xff05a35c),
-    unSelectColor: const Color(0xffCEEBD9),
-  ),
-  UserStatus(
-    emoji: '🎮',
-    txt: "Gaming",
-    selectColor: const Color(0xffFFD237),
-    unSelectColor: const Color(0xffFDDFBB),
-  ),
-  UserStatus(
-    emoji: '🤫',
-    txt: "Busy",
-    selectColor: const Color(0xffba3a3a),
-    unSelectColor: const Color(0xffdb9797),
   ),
 ];
 
