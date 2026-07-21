@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:sneakers_app/providers/locker_provider.dart';
+import 'package:sneakers_app/routing/routes.dart';
 import 'package:sneakers_app/theme/app_theme.dart';
 import 'package:sneakers_app/theme/motion.dart';
 import 'package:sneakers_app/theme/typography.dart';
@@ -10,20 +12,20 @@ import 'package:sneakers_app/view/locker/widgets/card_detail_sheet.dart';
 import 'package:sneakers_app/view/locker/widgets/settings_sheet.dart';
 import 'package:sneakers_app/view/locker/widgets/sneaker_card.dart';
 
-/// The Locker — a binder of collectible cards, one per product.
+/// The Locker — cards for pairs the shopper actually bought.
 ///
-/// Replaces a grouped settings list that was indistinguishable from any other
-/// e-commerce account screen. Settings still exist, demoted to a sheet: they
-/// are something you occasionally need, not what the page is *about*.
+/// There is no locked or browsable state. An unearned card is simply absent: a
+/// binder showing everything you *could* own is a catalogue, and only a binder
+/// showing what you *do* own is a collection.
 ///
-/// Unowned cards render as locked slots showing only their set number. That
-/// gap is the point — an incomplete set is what makes a set worth completing.
+/// Settings live in a sheet. They are something you occasionally need, not what
+/// the page is about.
 class LockerScreen extends ConsumerWidget {
   const LockerScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final slots = ref.watch(binderProvider);
+    final cards = ref.watch(lockerProvider);
     final stats = ref.watch(lockerStatsProvider);
 
     return Scaffold(
@@ -37,8 +39,8 @@ class LockerScreen extends ConsumerWidget {
                 child: Row(
                   children: [
                     Expanded(
-                      child: Text('The Locker',
-                          style: context.text.displaySmall),
+                      child:
+                          Text('The Locker', style: context.text.displaySmall),
                     ),
                     IconButton(
                       onPressed: () => showSettingsSheet(context),
@@ -51,55 +53,82 @@ class LockerScreen extends ConsumerWidget {
               ),
             ),
 
-            SliverToBoxAdapter(child: _StatsBar(stats: stats)),
-
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(20, 22, 20, 12),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text('Collection', style: context.text.titleMedium),
-                    ),
-                    Text(
-                      'tap a card to add it',
-                      style: context.text.bodySmall
-                          ?.copyWith(color: context.colors.onSurfaceVariant),
-                    ),
-                  ],
+            if (stats.isEmpty)
+              const SliverFillRemaining(
+                hasScrollBody: false,
+                child: _EmptyLocker(),
+              )
+            else ...[
+              SliverToBoxAdapter(child: _StatsBar(stats: stats)),
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
+                sliver: SliverGrid(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 14,
+                    mainAxisSpacing: 18,
+                    // Matches the card's own trading-card proportions.
+                    childAspectRatio: 63 / 88,
+                  ),
+                  delegate: SliverChildBuilderDelegate(
+                    (context, i) {
+                      final card = cards[i];
+                      return GestureDetector(
+                        onTap: () {
+                          HapticFeedback.selectionClick();
+                          showCardDetailSheet(context, card);
+                        },
+                        child: SneakerCard(
+                          product: card.product,
+                          meta: card.meta,
+                        ).enter(context, index: i.clamp(0, 6)),
+                      );
+                    },
+                    childCount: cards.length,
+                  ),
                 ),
               ),
-            ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
 
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
-              sliver: SliverGrid(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 14,
-                  mainAxisSpacing: 18,
-                  // Matches the card's own 63:88 trading-card proportions.
-                  childAspectRatio: 63 / 88,
-                ),
-                delegate: SliverChildBuilderDelegate(
-                  (context, i) {
-                    final slot = slots[i];
-                    return GestureDetector(
-                      onTap: () {
-                        HapticFeedback.selectionClick();
-                        showCardDetailSheet(context, slot);
-                      },
-                      child: SneakerCard(
-                        product: slot.product,
-                        meta: slot.meta,
-                        owned: slot.owned,
-                      ).enter(context, index: i.clamp(0, 6)),
-                    );
-                  },
-                  childCount: slots.length,
-                ),
-              ),
-            ),
+/// Empty state.
+///
+/// Says plainly how cards are earned. An empty collection that does not explain
+/// itself reads as a broken screen.
+class _EmptyLocker extends StatelessWidget {
+  const _EmptyLocker();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(36, 20, 36, 60),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          spacing: 12,
+          children: [
+            Icon(Icons.style_outlined,
+                    size: 54, color: context.colors.onSurfaceVariant)
+                .enter(context),
+            Text('No cards yet', style: context.text.headlineSmall)
+                .enter(context, index: 1),
+            Text(
+              'Every pair you buy becomes a card here. Rarity follows the '
+              'price, and the set has 8 to collect.',
+              textAlign: TextAlign.center,
+              style: context.text.bodyMedium
+                  ?.copyWith(color: context.colors.onSurfaceVariant),
+            ).enter(context, index: 2),
+            const SizedBox(height: 4),
+            FilledButton(
+              onPressed: () => context.go(Routes.home),
+              child: const Text('Browse the store'),
+            ).enter(context, index: 3),
           ],
         ),
       ),
@@ -163,8 +192,7 @@ class _StatsBar extends StatelessWidget {
                   value: stats.completion,
                   minHeight: 5,
                   backgroundColor: context.colors.surfaceContainerHigh,
-                  valueColor:
-                      AlwaysStoppedAnimation(context.colors.onSurface),
+                  valueColor: AlwaysStoppedAnimation(context.colors.onSurface),
                 ),
               ),
             ],

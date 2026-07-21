@@ -45,8 +45,8 @@ aspirational unless it says so.
 | Account screen | Reflects real session — signed-out state, no fake identity |
 | Loading states | Skeletons from the real widget tree; pull-to-refresh |
 | Motion | Tokenised durations, shared-axis page transitions, reduced-motion honoured |
-| The Locker | Collectible card binder — TCG-proportioned cards from real catalogue data, rarity by price, personal collection tracker |
-| Tests | 55 tests over cart, money, feed, routing, PDP, locker and motion |
+| The Locker | Collectible cards earned by purchase — TCG-proportioned, real catalogue data, rarity by price |
+| Tests | 58 tests over cart, money, feed, routing, PDP, locker, orders and motion |
 
 ### Not built yet
 
@@ -54,7 +54,7 @@ aspirational unless it says so.
 |---|---|
 | **AI recommendations** | **Designed, not implemented.** See [docs/AI.md](docs/AI.md) |
 | Backend | Not started — catalogue is an in-memory fixture |
-| Auth, checkout, payments | Routes and guard exist; screens are stubs |
+| Auth, payments | Routes and guard exist; no gateway. Checkout completes orders without charging |
 | Search | Route exists; conversational search not built |
 | Orders, addresses, wishlist | Not started |
 

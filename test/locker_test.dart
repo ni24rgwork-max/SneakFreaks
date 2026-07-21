@@ -4,7 +4,10 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:sneakers_app/models/card_meta.dart';
 import 'package:sneakers_app/providers/catalogue_provider.dart';
+import 'package:sneakers_app/models/shoe_model.dart';
+import 'package:sneakers_app/providers/cart_provider.dart';
 import 'package:sneakers_app/providers/locker_provider.dart';
+import 'package:sneakers_app/providers/orders_provider.dart';
 import 'package:sneakers_app/theme/app_theme.dart';
 import 'package:sneakers_app/utils/money.dart';
 import 'package:sneakers_app/view/locker/locker_screen.dart';
@@ -69,60 +72,103 @@ void main() {
     });
   });
 
-  testWidgets('binder numbers every card stably', (tester) async {
+  testWidgets('an empty locker shows how cards are earned', (tester) async {
     final c = await pumpLocker(tester);
-    final slots = c.read(binderProvider);
 
-    expect(slots.length, c.read(catalogueProvider).length);
-    expect(slots.first.meta.setLabel, '001/008');
-    expect(slots.last.meta.setLabel, '008/008');
+    expect(c.read(lockerProvider), isEmpty);
+    expect(c.read(lockerStatsProvider).isEmpty, isTrue);
 
-    // Re-reading must not renumber — a set whose numbers shuffle is not a set.
-    expect(c.read(binderProvider).first.meta.setLabel, '001/008');
+    // No locked cards to browse — an unearned card is simply absent.
+    expect(find.byType(SneakerCard), findsNothing);
+    expect(find.text('No cards yet'), findsOneWidget);
+    expect(find.text('Browse the store'), findsOneWidget);
   });
 
-  testWidgets('every card starts unowned and the set renders', (tester) async {
+  testWidgets('buying a pair puts its card in the locker', (tester) async {
     final c = await pumpLocker(tester);
+    final product = c.read(catalogueProvider).first;
 
-    expect(c.read(ownedPairsProvider), isEmpty);
-    expect(c.read(lockerStatsProvider).owned, 0);
-    expect(c.read(lockerStatsProvider).completion, 0);
-    expect(find.byType(SneakerCard), findsWidgets);
-  });
-
-  testWidgets('adding a pair updates stats and persists', (tester) async {
-    final c = await pumpLocker(tester);
-    final collection = c.read(ownedPairsProvider.notifier);
-
-    collection.add('sku-001');
+    c.read(cartProvider.notifier).add(product, size: '8');
+    c.read(ordersProvider.notifier).place(nowMillis: 1000);
     await tester.pumpAndSettle();
 
-    final stats = c.read(lockerStatsProvider);
-    expect(stats.owned, 1);
-    expect(stats.brands, 1);
-    expect(stats.rarest, CardRarity.rare); // ₹12,995
-    expect(c.read(binderProvider).first.owned, isTrue);
+    final cards = c.read(lockerProvider);
+    expect(cards.length, 1);
+    expect(cards.single.product.id, product.id);
+    expect(find.byType(SneakerCard), findsOneWidget);
+    expect(find.text('No cards yet'), findsNothing);
 
-    // Adding twice must not double-count.
-    collection.add('sku-001');
-    expect(c.read(lockerStatsProvider).owned, 1);
-
-    collection.remove('sku-001');
-    expect(c.read(lockerStatsProvider).owned, 0);
+    // Placing the order empties the bag.
+    expect(c.read(cartProvider), isEmpty);
   });
 
-  testWidgets('brand count is distinct, not a pair count', (tester) async {
+  testWidgets('card numbers stay tied to catalogue position', (tester) async {
     final c = await pumpLocker(tester);
-    final collection = c.read(ownedPairsProvider.notifier);
+    final catalogue = c.read(catalogueProvider);
 
-    collection.add('sku-001'); // NIKE
-    collection.add('sku-003'); // NIKE
-    collection.add('sku-002'); // JORDAN
+    // Buy the third product only. Its card must still read 003, not 001 —
+    // a number that renumbers as you collect makes the set meaningless.
+    c.read(cartProvider.notifier).add(catalogue[2], size: '8');
+    c.read(ordersProvider.notifier).place(nowMillis: 2000);
+    await tester.pumpAndSettle();
+
+    expect(c.read(lockerProvider).single.meta.setLabel, '003/008');
+    expect(c.read(lockerStatsProvider).total, catalogue.length);
+  });
+
+  testWidgets('buying the same model twice is still one card', (tester) async {
+    final c = await pumpLocker(tester);
+    final product = c.read(catalogueProvider).first;
+
+    c.read(cartProvider.notifier).add(product, size: '8');
+    c.read(ordersProvider.notifier).place(nowMillis: 3000);
+    c.read(cartProvider.notifier).add(product, size: '9.5');
+    c.read(ordersProvider.notifier).place(nowMillis: 4000);
+    await tester.pumpAndSettle();
+
+    // Two orders, two sizes — the card represents the shoe, not the receipt.
+    expect(c.read(ordersProvider).length, 2);
+    expect(c.read(lockerProvider).length, 1);
+    expect(c.read(lockerStatsProvider).owned, 1);
+  });
+
+  testWidgets('stats count distinct brands and track the rarest card',
+      (tester) async {
+    final c = await pumpLocker(tester);
+    final catalogue = c.read(catalogueProvider);
+    ShoeModel bySku(String id) => catalogue.firstWhere((p) => p.id == id);
+
+    for (final id in ['sku-001', 'sku-003', 'sku-002']) {
+      c.read(cartProvider.notifier).add(bySku(id), size: '8');
+    }
+    c.read(ordersProvider.notifier).place(nowMillis: 5000);
     await tester.pumpAndSettle();
 
     final stats = c.read(lockerStatsProvider);
     expect(stats.owned, 3);
-    expect(stats.brands, 2);
+    expect(stats.brands, 2); // NIKE + JORDAN
+    expect(stats.rarest, CardRarity.rare); // the ₹12,995 pair
+  });
+
+  testWidgets('an empty bag cannot produce an order', (tester) async {
+    final c = await pumpLocker(tester);
+
+    final order = c.read(ordersProvider.notifier).place(nowMillis: 6000);
+    expect(order, isNull);
+    expect(c.read(ordersProvider), isEmpty);
+    // Otherwise a phantom card would appear for a purchase nobody made.
+    expect(c.read(lockerProvider), isEmpty);
+  });
+
+  testWidgets('orders survive a rebuild', (tester) async {
+    final c = await pumpLocker(tester);
+    final product = c.read(catalogueProvider).first;
+
+    c.read(cartProvider.notifier).add(product, size: '8');
+    c.read(ordersProvider.notifier).place(nowMillis: 7000);
+
+    expect(c.read(ordersProvider).single.total.paise, greaterThan(0));
+    expect(c.read(ordersProvider).single.productIds, contains(product.id));
   });
 
   testWidgets('settings still reachable, and gated the same way',

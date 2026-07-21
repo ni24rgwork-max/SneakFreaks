@@ -274,10 +274,21 @@ method.
 **Card type comes from the product's own tags**, not an arbitrary assignment.
 The type colour is what makes a wall of cards read as one set.
 
-**Owning a pair is independent of buying it here.** Sneakerheads already
-catalogue what they own, so the binder is populated on day one without a
-backend — and it is the richest taste signal the recommendation layer could be
-handed.
+**Cards are earned by purchase, and only owned cards exist.** There is no
+locked or browsable state — an unearned card is simply absent. A binder showing
+everything you *could* own is a catalogue; only one showing what you *do* own is
+a collection.
+
+**Ownership derives from order history**, never from a separate flag. One
+source of truth means the Locker cannot disagree with what was bought. Buying
+the same model twice is still one card: the card represents the shoe, not the
+receipt.
+
+⚠️ `OrdersController.place` completes an order **without taking payment**. It
+exists so the acquisition loop — bag → order → card — is real and testable
+before a gateway is wired. Phase 7 replaces it with: authorise payment → server
+creates the order → client reads it back. Nothing else changes, because every
+consumer already reads orders rather than inferring ownership.
 
 **Set numbers are positional and stable.** `003/008` must mean the same card
 every time; a set whose numbers shuffle is not a set.
