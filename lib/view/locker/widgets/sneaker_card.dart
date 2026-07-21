@@ -41,7 +41,6 @@ class SneakerCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final palette = ref.watch(productPaletteProvider(product.imgAddress));
     final resolved = palette.value ?? seedPalette(product.modelColor);
-    final type = meta.type;
 
     return AspectRatio(
       aspectRatio: 63 / 88,
@@ -50,20 +49,17 @@ class SneakerCard extends ConsumerWidget {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            // Frame: the type colour is what makes a wall of these read as one
-            // set rather than a pile of unrelated tiles.
+            // Frame: the shoe's own colour, extracted from its photography and
+            // run through a shared light → mid → deep ramp. A Jordan in
+            // green-and-orange gets a card that belongs to it, and the common
+            // ramp is what still makes a wall of them read as one set.
+            //
+            // Category is carried by the type icon and the footer label
+            // instead — a legend, rather than the whole colour scheme.
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(14),
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Color.lerp(type.color, Colors.white, 0.22)!,
-                    type.color,
-                    Color.lerp(type.color, Colors.black, 0.42)!,
-                  ],
-                ),
+                gradient: resolved.frame,
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.35),
@@ -168,8 +164,8 @@ class _CardInner extends StatelessWidget {
                       product.model,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTypography.wordmark(size: 13)
-                          .copyWith(color: ink),
+                      style:
+                          AppTypography.wordmark(size: 13).copyWith(color: ink),
                     ),
                   ],
                 ),
@@ -183,7 +179,7 @@ class _CardInner extends StatelessWidget {
                     ),
               ),
               const SizedBox(width: 3),
-              Icon(meta.type.icon, size: 11, color: meta.type.color),
+              Icon(meta.type.icon, size: 11, color: palette.accentInk),
             ],
           ),
           const SizedBox(height: 5),
@@ -221,7 +217,7 @@ class _CardInner extends StatelessWidget {
                         ? null
                         : '${product.discountPercent}% off',
                     ink: ink,
-                    accent: meta.type.color,
+                    accent: palette.accentInk,
                   ),
                 _Row(
                   label: 'Sizes',
@@ -232,14 +228,14 @@ class _CardInner extends StatelessWidget {
                       ? null
                       : '${product.soldOutSizes.length} gone',
                   ink: ink,
-                  accent: meta.type.color,
+                  accent: palette.accentInk,
                 ),
                 if (product.dropsOn case final date?)
                   _Row(
                     label: 'Drops',
                     value: DateFormat('d MMM yyyy').format(date),
                     ink: ink,
-                    accent: meta.type.color,
+                    accent: palette.accentInk,
                   ),
                 const Spacer(),
                 Container(height: 0.7, color: ink.withValues(alpha: 0.18)),
@@ -274,7 +270,7 @@ class _CardInner extends StatelessWidget {
                               : Icons.circle_outlined,
                           size: 5,
                           color: i < meta.rarity.pips
-                              ? meta.type.color
+                              ? palette.accentInk
                               : ink.withValues(alpha: 0.3),
                         ),
                       ),
@@ -336,8 +332,7 @@ class _Row extends StatelessWidget {
           if (trailing case final t?)
             Text(
               t,
-              style: base.labelSmall
-                  ?.copyWith(color: accent, fontSize: 6.5),
+              style: base.labelSmall?.copyWith(color: accent, fontSize: 6.5),
             ),
         ],
       ),

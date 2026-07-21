@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sneakers_app/providers/catalogue_provider.dart';
 import 'package:sneakers_app/providers/locker_provider.dart';
 import 'package:sneakers_app/providers/profile_provider.dart';
 import 'package:sneakers_app/theme/app_theme.dart';
@@ -48,7 +49,11 @@ class _LockerShowcase extends ConsumerWidget {
     if (card == null) return const _NothingYet();
 
     final isAutomatic = ref.watch(featuredCardIdProvider) == null;
-    final accent = card.meta.type.color;
+    // The halo follows the shoe, like the card frame does — a category colour
+    // here would fight the card it is lighting.
+    final palette = ref.watch(productPaletteProvider(card.product.imgAddress));
+    final accent =
+        (palette.value ?? seedPalette(card.product.modelColor)).accent;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
@@ -82,15 +87,17 @@ class _LockerShowcase extends ConsumerWidget {
                     // Halo in the card\'s own type colour — the thing that
                     // makes it read as displayed rather than dropped.
                     BoxShadow(
-                      color: accent.withValues(alpha: 0.28),
-                      blurRadius: 44,
+                      color: accent.withValues(alpha: 0.30),
+                      blurRadius: 38,
                       spreadRadius: -6,
-                      offset: const Offset(0, 10),
+                      offset: const Offset(0, 8),
                     ),
                   ],
                 ),
                 child: SizedBox(
-                  width: 232,
+                  // Large enough that the card's own 6.5–8pt type stays
+                  // legible, small enough that it shares the page.
+                  width: 188,
                   child:
                       ScaledSneakerCard(product: card.product, meta: card.meta),
                 ),

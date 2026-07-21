@@ -103,6 +103,30 @@ class OrdersController extends Notifier<List<Order>> {
 final ordersProvider =
     NotifierProvider<OrdersController, List<Order>>(OrdersController.new);
 
+/// The size the shopper buys most, or null before there is enough to say.
+///
+/// Read off the order lines, which already carry `productId#size`. A sneaker
+/// collection is partly a statement about a foot, and this is the one number a
+/// collector would actually put on a profile. Ties break towards the size
+/// bought most recently, since orders are stored newest-first.
+final usualSizeProvider = Provider<String?>((ref) {
+  final counts = <String, int>{};
+  for (final order in ref.watch(ordersProvider)) {
+    for (final line in order.lines) {
+      final parts = line.split('#');
+      if (parts.length < 2 || parts[1].isEmpty) continue;
+      counts[parts[1]] = (counts[parts[1]] ?? 0) + 1;
+    }
+  }
+  if (counts.isEmpty) return null;
+
+  var best = counts.entries.first;
+  for (final entry in counts.entries) {
+    if (entry.value > best.value) best = entry;
+  }
+  return best.key;
+});
+
 /// Product ids the shopper owns, derived from order history.
 ///
 /// Distinct: buying the same model twice is still one card. The card

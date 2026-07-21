@@ -228,6 +228,51 @@ void main() {
     });
   });
 
+  group('the shelf', () {
+    testWidgets('shows the pairs themselves, not more card art',
+        (tester) async {
+      final c = await pumpProfile(tester);
+      final catalogue = c.read(catalogueProvider);
+      for (final id in ['sku-001', 'sku-002']) {
+        c.read(cartProvider.notifier).add(
+              catalogue.firstWhere((p) => p.id == id),
+              size: '9',
+            );
+      }
+      c.read(ordersProvider.notifier).place(nowMillis: 5000);
+      await tester.pumpAndSettle();
+
+      expect(find.text('THE SHELF'), findsOneWidget);
+      // One card (the pick) plus a photo per owned pair.
+      expect(find.byType(SneakerCard), findsOneWidget);
+      for (final id in ['sku-001', 'sku-002']) {
+        final product = catalogue.firstWhere((p) => p.id == id);
+        expect(find.text(product.model), findsWidgets);
+      }
+    });
+
+    testWidgets('usual size is counted from real order lines', (tester) async {
+      final c = await pumpProfile(tester);
+      final catalogue = c.read(catalogueProvider);
+
+      // Two pairs at UK 9, one at UK 8.
+      c.read(cartProvider.notifier).add(catalogue[0], size: '9');
+      c.read(cartProvider.notifier).add(catalogue[1], size: '9');
+      c.read(cartProvider.notifier).add(catalogue[2], size: '8');
+      c.read(ordersProvider.notifier).place(nowMillis: 6000);
+      await tester.pumpAndSettle();
+
+      expect(c.read(usualSizeProvider), '9');
+      expect(find.text('UK 9'), findsOneWidget);
+    });
+
+    testWidgets('no orders means no claim about size', (tester) async {
+      final c = await pumpProfile(tester);
+      expect(c.read(usualSizeProvider), isNull);
+      expect(find.text('THE SHELF'), findsNothing);
+    });
+  });
+
   test('the locker has its own address under the profile', () {
     expect(Routes.lockerPath, '/profile/locker');
   });

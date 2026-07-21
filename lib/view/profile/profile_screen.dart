@@ -12,13 +12,16 @@ import 'package:sneakers_app/theme/app_theme.dart';
 import 'package:sneakers_app/theme/typography.dart';
 import 'package:sneakers_app/view/locker/widgets/settings_sheet.dart';
 import 'package:sneakers_app/view/profile/widget/account_tile.dart';
+import 'package:sneakers_app/view/profile/widgets/shelf.dart';
 import 'package:sneakers_app/view/profile/widgets/showcase.dart';
 import 'package:sneakers_app/view/profile/widgets/showcase_picker.dart';
 
 /// Profile.
 ///
-/// Four blocks, not six: who you are, the one card you chose, what your binder
-/// holds, and what you can do. The Locker is a *section* here — the binder
+/// Reads as a collector's portfolio: who you are, the one card you chose, the
+/// pairs on your shelf, what your binder holds, and what you can do. Every
+/// figure on it is counted from the catalogue and your own order history —
+/// nothing here is decorative filler. The Locker is a *section*; the binder
 /// itself lives at [Routes.lockerPath].
 ///
 /// Which block leads is the user's call via [ProfileShowcase]. A profile is the
@@ -73,6 +76,9 @@ class ProfileScreen extends ConsumerWidget {
 
             // ── Whichever block the user chose to lead ──
             const SliverToBoxAdapter(child: ProfileShowcaseView()),
+
+            // ── The pairs themselves ──
+            const SliverToBoxAdapter(child: ProfileShelf()),
 
             // ── The Locker, as a section ──
             SliverToBoxAdapter(child: _LockerSection(stats: stats)),

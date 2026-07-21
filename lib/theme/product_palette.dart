@@ -33,6 +33,30 @@ class ProductPalette {
         colors: [top, bottom],
       );
 
+  /// Frame treatment for a collectible card.
+  ///
+  /// The shoe's own hue run through a light → mid → deep ramp, so a Jordan in
+  /// green-and-orange gets a card that belongs to it. Every card shares the same
+  /// ramp, which is what keeps a wall of them reading as one set now that the
+  /// colour is no longer a fixed per-category hex.
+  LinearGradient get frame => LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Color.lerp(accent, const Color(0xFFFFFFFF), 0.22)!,
+          accent,
+          Color.lerp(accent, const Color(0xFF000000), 0.42)!,
+        ],
+      );
+
+  /// The product's hue, darkened enough to sit on the card's cream stock.
+  ///
+  /// [accent] is tuned for use *on the dark card*, where L=0.52 reads well.
+  /// The same value on near-white measures around 3:1 — fine for a swatch,
+  /// not for the discount figure, which is text people are meant to read.
+  Color get accentInk =>
+      HSLColor.fromColor(accent).withLightness(0.36).toColor();
+
   /// Builds a card treatment from an arbitrary seed colour.
   ///
   /// The seed's **hue is kept and its lightness/saturation are replaced.** That
@@ -47,13 +71,16 @@ class ProductPalette {
     // A greyscale shoe (all-white, all-black) yields near-zero saturation.
     // Left alone that produces a flat grey card, so it gets a floor — enough
     // chroma to read as a deliberate charcoal rather than a dead rectangle.
-    final saturation = hsl.saturation < 0.08
-        ? 0.10
-        : hsl.saturation.clamp(0.30, 0.68);
+    final saturation =
+        hsl.saturation < 0.08 ? 0.10 : hsl.saturation.clamp(0.30, 0.68);
 
     final top = hsl.withSaturation(saturation).withLightness(0.30).toColor();
-    final bottom = hsl.withSaturation(saturation * 0.85).withLightness(0.15).toColor();
-    final accent = hsl.withSaturation(saturation.clamp(0.45, 0.85)).withLightness(0.52).toColor();
+    final bottom =
+        hsl.withSaturation(saturation * 0.85).withLightness(0.15).toColor();
+    final accent = hsl
+        .withSaturation(saturation.clamp(0.45, 0.85))
+        .withLightness(0.52)
+        .toColor();
 
     return ProductPalette(
       top: top,
@@ -83,8 +110,9 @@ class ProductPalette {
   }
 
   static double _relativeLuminance(Color c) {
-    double channel(double v) =>
-        v <= 0.04045 ? v / 12.92 : math.pow((v + 0.055) / 1.055, 2.4).toDouble();
+    double channel(double v) => v <= 0.04045
+        ? v / 12.92
+        : math.pow((v + 0.055) / 1.055, 2.4).toDouble();
     return 0.2126 * channel(c.r) +
         0.7152 * channel(c.g) +
         0.0722 * channel(c.b);
@@ -109,7 +137,8 @@ Future<Color> dominantProductColor(String assetPath) async {
     targetHeight: 64,
   );
   final frame = await codec.getNextFrame();
-  final bytes = await frame.image.toByteData(format: ui.ImageByteFormat.rawRgba);
+  final bytes =
+      await frame.image.toByteData(format: ui.ImageByteFormat.rawRgba);
   frame.image.dispose();
   codec.dispose();
 

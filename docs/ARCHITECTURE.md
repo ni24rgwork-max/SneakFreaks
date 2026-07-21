@@ -251,8 +251,20 @@ rails at once and duplicate tags in one subtree throw.
 
 ## Profile and the Locker
 
-The profile is four blocks — who you are, the one card you chose, what your
-binder holds, what you can do — not a stack of full-width panels. Three things
+The profile reads as a collector's portfolio — who you are, the one card you
+chose, the pairs on your shelf, what your binder holds, what you can do — rather
+than a stack of full-width panels.
+
+**The Shelf holds shoes; the Locker holds cards.** A collector's page that only
+ever shows card art is a page about the card game, and the shoes are the point.
+Each tile is the catalogue's own photography on a gradient pulled from that
+photo, and taps through to the product.
+
+Two facts sit beside it, both counted rather than claimed: `usualSizeProvider`
+reads the size bought most often off the order lines (which already carry
+`productId#size`), and the category shown is whichever the collection actually
+leans towards. With no orders there is no shelf and no claim about size — an
+empty portfolio saying nothing beats one saying something invented. Three things
 carry that: the signed-out call to action is a chip beside the name rather than
 a full-bleed slab (on a dark page a white button that wide becomes the loudest
 thing on screen, and a profile is not a checkout); the featured card is captioned
@@ -320,8 +332,20 @@ most, which edges toward a spend badge. Scarcity signals — limited sizes,
 drop-day acquisition — are the alternative, and switching means changing one
 method.
 
-**Card type comes from the product's own tags**, not an arbitrary assignment.
-The type colour is what makes a wall of cards read as one set.
+**Card colour comes from the shoe's own photography.** `dominantProductColor`
+buckets pixels by hue and scores each bucket by saturation, which surfaces the
+red heel on an Air Max and the amber panel on a Jordan; `ProductPalette.frame`
+runs that hue through a shared light → mid → deep ramp. Each card belongs to its
+shoe, and the common ramp is what still makes a wall of them read as one set.
+
+This replaced a fixed colour per category. The category is now carried by the
+type icon and the footer label — a legend rather than the whole colour scheme.
+Category still comes from the product's own tags, not an arbitrary assignment.
+
+Small accents (the discount figure, the rarity pips) use `accentInk`, the same
+hue darkened to L=0.36. `accent` is tuned for the *dark* card, where L=0.52
+reads well; the same value on the card's near-white stock measures around 3:1,
+which is fine for a swatch and not for text people are meant to read.
 
 **Cards are earned by purchase, and only owned cards exist.** There is no
 locked or browsable state — an unearned card is simply absent. A binder showing
