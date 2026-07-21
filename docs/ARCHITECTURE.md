@@ -249,6 +249,43 @@ payment returns, so the transition (`SharedAxisTransition`) is applied in
 This is also why product cards have no `Hero`: a product renders in several
 rails at once and duplicate tags in one subtree throw.
 
+## The Locker
+
+The account screen is a **binder of collectible cards**, one per product, on
+trading-card proportions (63:88). It replaced a grouped settings list that was
+indistinguishable from any other e-commerce app. Settings still exist, demoted
+to a sheet — they are something you occasionally need, not what the page is
+about.
+
+**Cards print only real catalogue data.** Brand, model, price, MRP, discount,
+size run, sold-out count, category, drop date. No performance figures are
+invented, and the `specs` map is deliberately *not* surfaced: those values are
+placeholders, and a spec block is precisely where a reader assumes they are
+looking at manufacturer fact. A fabricated "Grip 92" on a real Nike product is a
+different order of problem from placeholder prose, because numbers read as
+authoritative.
+
+**Rarity is derived from price** (`CardRarity.forPrice`). Worth recording the
+tradeoff: price-derived rarity means the rarest cards belong to whoever spent
+most, which edges toward a spend badge. Scarcity signals — limited sizes,
+drop-day acquisition — are the alternative, and switching means changing one
+method.
+
+**Card type comes from the product's own tags**, not an arbitrary assignment.
+The type colour is what makes a wall of cards read as one set.
+
+**Owning a pair is independent of buying it here.** Sneakerheads already
+catalogue what they own, so the binder is populated on day one without a
+backend — and it is the richest taste signal the recommendation layer could be
+handed.
+
+**Set numbers are positional and stable.** `003/008` must mean the same card
+every time; a set whose numbers shuffle is not a set.
+
+⚠️ Achievement/collection state is evaluated client-side and is therefore
+trivially forged. Fine while it is cosmetic. The moment a card or tier grants a
+discount, early access or raffle priority, evaluation must move server-side.
+
 ## Indian commerce specifics
 
 These are expectations in the Indian market, not embellishments.
@@ -282,6 +319,8 @@ with a CA before any invoice or tax-breakup feature is built.
 | Product copy | Descriptions and specs are marked `PLACEHOLDER` in the fixture. Grep for it. |
 | Gallery | Products carry one image, so the gallery shows one page. Ready for multiple angles when real photography lands. |
 | Universal / App Links | Custom scheme only. Needs a verified domain. |
+| Card foil | Tilt uses the accelerometer; simulators and desktop fall back to a static sheen. |
+| Locker trust | Collection state is client-side and forgeable — cosmetic only by design. |
 
 ---
 

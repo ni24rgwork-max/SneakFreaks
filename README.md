@@ -45,7 +45,8 @@ aspirational unless it says so.
 | Account screen | Reflects real session — signed-out state, no fake identity |
 | Loading states | Skeletons from the real widget tree; pull-to-refresh |
 | Motion | Tokenised durations, shared-axis page transitions, reduced-motion honoured |
-| Tests | 51 tests over cart, money, feed, routing, PDP, profile and motion |
+| The Locker | Collectible card binder — TCG-proportioned cards from real catalogue data, rarity by price, personal collection tracker |
+| Tests | 55 tests over cart, money, feed, routing, PDP, locker and motion |
 
 ### Not built yet
 

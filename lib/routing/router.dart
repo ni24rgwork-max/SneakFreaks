@@ -13,7 +13,7 @@ import 'package:sneakers_app/view/checkout/checkout_screen.dart';
 import 'package:sneakers_app/view/collection/collection_screen.dart';
 import 'package:sneakers_app/view/detail/detail_screen.dart';
 import 'package:sneakers_app/view/home/home_screen.dart';
-import 'package:sneakers_app/view/profile/profile_screen.dart';
+import 'package:sneakers_app/view/locker/locker_screen.dart';
 import 'package:sneakers_app/view/search/search_screen.dart';
 import 'package:sneakers_app/view/shell/shell_scaffold.dart';
 
@@ -98,7 +98,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: Routes.profile,
                 name: Routes.nameProfile,
-                builder: (context, state) => const Profile(),
+                builder: (context, state) => const LockerScreen(),
               ),
             ],
           ),
