@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -9,7 +10,7 @@ import 'package:sneakers_app/theme/app_theme.dart';
 import 'package:sneakers_app/theme/brand_tokens.dart';
 import 'package:sneakers_app/theme/product_palette.dart';
 import 'package:sneakers_app/theme/typography.dart';
-import 'package:sneakers_app/view/detail/detail_screen.dart';
+import 'package:sneakers_app/routing/routes.dart';
 
 /// The hero rail.
 ///
@@ -114,13 +115,7 @@ class _FeaturedCard extends ConsumerWidget {
     final discount = product.discountPercent;
 
     return GestureDetector(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) =>
-              DetailScreen(model: product, isComeFromMoreSection: false),
-        ),
-      ),
+      onTap: () => context.push(Routes.productPath(product.id)),
       child: AnimatedContainer(
         duration: BrandTokens.motionSlow,
         curve: BrandTokens.motionEmphasized,

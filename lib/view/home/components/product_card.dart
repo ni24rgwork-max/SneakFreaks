@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:sneakers_app/models/shoe_model.dart';
 import 'package:sneakers_app/theme/app_theme.dart';
 import 'package:sneakers_app/theme/typography.dart';
-import 'package:sneakers_app/view/detail/detail_screen.dart';
+import 'package:sneakers_app/routing/routes.dart';
 
 /// The compact product tile used by every rail and grid in the feed.
 ///
@@ -21,13 +22,7 @@ class ProductCard extends StatelessWidget {
     final discount = product.discountPercent;
 
     return GestureDetector(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) =>
-              DetailScreen(model: product, isComeFromMoreSection: true),
-        ),
-      ),
+      onTap: () => context.push(Routes.productPath(product.id)),
       child: SizedBox(
         width: width,
         child: Column(
@@ -49,12 +44,13 @@ class ProductCard extends StatelessWidget {
                     Positioned.fill(
                       child: Padding(
                         padding: const EdgeInsets.all(12),
-                        child: Hero(
-                          tag: product.id,
-                          child: Image.asset(
-                            product.imgAddress,
-                            fit: BoxFit.contain,
-                          ),
+                        // No Hero here: the same product renders in several
+                        // rails at once, and duplicate tags in one subtree
+                        // throw. The carousel is the single hero source.
+                        // TODO(phase-6): OpenContainer transition per card.
+                        child: Image.asset(
+                          product.imgAddress,
+                          fit: BoxFit.contain,
                         ),
                       ),
                     ),

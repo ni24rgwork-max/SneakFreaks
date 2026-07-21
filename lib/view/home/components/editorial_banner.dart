@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+import 'package:sneakers_app/routing/routes.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:sneakers_app/providers/catalogue_provider.dart';
@@ -94,19 +97,23 @@ class EditorialBanner extends ConsumerWidget {
                         height: 1.35,
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 13, vertical: 7),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: resolved.onCard.withValues(alpha: 0.55),
+                    GestureDetector(
+                      onTap: () =>
+                          context.push(Routes.collectionPath(tag)),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 13, vertical: 7),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: resolved.onCard.withValues(alpha: 0.55),
+                          ),
+                          borderRadius: BorderRadius.circular(999),
                         ),
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                      child: Text(
-                        'Explore ${items.length}',
-                        style: context.text.labelMedium
-                            ?.copyWith(color: resolved.onCard),
+                        child: Text(
+                          'Explore ${items.length}',
+                          style: context.text.labelMedium
+                              ?.copyWith(color: resolved.onCard),
+                        ),
                       ),
                     ),
                   ],

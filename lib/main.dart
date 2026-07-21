@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sneakers_app/data/preferences.dart';
 import 'package:sneakers_app/theme/app_theme.dart';
 import 'package:sneakers_app/theme/theme_controller.dart';
-import 'package:sneakers_app/view/navigator.dart';
+import 'package:sneakers_app/routing/router.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,13 +25,13 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'SneakFreaks',
       theme: AppTheme.of(Brightness.light),
       darkTheme: AppTheme.of(Brightness.dark),
       themeMode: ref.watch(themeControllerProvider),
-      home: const MainNavigator(),
+      routerConfig: ref.watch(routerProvider),
     );
   }
 }

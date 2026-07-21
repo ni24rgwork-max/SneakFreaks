@@ -138,6 +138,38 @@ or schema-changed payload resets to empty rather than crashing on launch.
 
 ---
 
+## Routing
+
+`go_router`, with `StatefulShellRoute.indexedStack` giving each bottom-nav tab
+its own navigator. Open a product from Home, switch to Bag, come back — you are
+still on the product. The previous `PageView` could not express that.
+
+**Routes carry ids, not objects.** `DetailScreen` takes a `productId` and
+resolves it from the catalogue. A route has to be reconstructable from a URL
+string, and an object cannot travel in one.
+
+**Browse routes hang off the Home branch only.** `go_router` requires route
+names to be globally unique, so the same named route cannot be attached to
+several branches. It also matches use: every path into a product starts from
+the feed. If the Bag ever needs a PDP, give it a prefixed copy
+(`/bag/product/:id`).
+
+**Deep links use a custom scheme** — `sneakfreaks://product/sku-001`. That works
+without owning a domain. Universal Links (iOS) and App Links (Android) need a
+verified domain serving `apple-app-site-association` and `assetlinks.json`;
+those are a TODO for when a domain exists.
+
+⚠️ **Custom-scheme URIs need normalizing.** `Uri.parse` reads
+`sneakfreaks://product/sku-004` as **host** `product` with path `/sku-004`, so
+nothing matches and the user hits the not-found page. The router folds the host
+back into the path before matching. This was caught by opening a real link on a
+device — the widget tests passed either way.
+
+**The auth guard exists before auth does.** `/checkout` redirects to `/sign-in`
+carrying `?from=`, so signing in returns the user to checkout rather than home.
+The session is a stub, but the gate is in place so checkout cannot ship without
+one.
+
 ## Indian commerce specifics
 
 These are expectations in the Indian market, not embellishments.
@@ -164,9 +196,10 @@ with a CA before any invoice or tax-breakup feature is built.
 |---|---|
 | Screen-fraction layout | Home sizes sections as fractions of full screen height. Wrapped in a scroll view as a stopgap; needs `CustomScrollView` before tablets/foldables. |
 | `ShoeModel.modelColor` | A `dart:ui` `Color` inside a domain model. Not serializable — must leave before a backend supplies the catalogue. |
-| No routing | `Navigator.push` with object arguments. `go_router` must land before payments — UPI hands control to another app and returns via deep link. |
 | Product imagery | Placeholder material, not cleared for commercial use. |
 | Gesture coverage | Swipe-to-delete and the size sheet are unit-tested at the logic level but the gestures themselves are unexercised. |
+| Hero on cards | A product renders in several rails at once, so per-card `Hero` tags collided. Only the carousel is a hero source; Phase 6 replaces this with `OpenContainer`. |
+| Universal / App Links | Custom scheme only. Needs a verified domain. |
 
 ---
 

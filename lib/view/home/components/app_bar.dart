@@ -1,5 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+import 'package:sneakers_app/routing/routes.dart';
 
 import 'package:sneakers_app/theme/app_theme.dart';
 
@@ -18,7 +21,7 @@ PreferredSizeWidget customAppBar(BuildContext context) {
           child: IconButton(
             icon: const Icon(CupertinoIcons.search, size: 25),
             color: context.colors.onSurface,
-            onPressed: () {},
+            onPressed: () => context.push('/${Routes.search}'),
           ),
         ),
         Padding(

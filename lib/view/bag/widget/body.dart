@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+import 'package:sneakers_app/routing/routes.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:sneakers_app/models/cart_line.dart';
@@ -288,7 +291,7 @@ class _Summary extends ConsumerWidget {
           ),
           const SizedBox(height: 4),
           FilledButton(
-            onPressed: () {},
+            onPressed: () => context.push(Routes.checkout),
             child: const Text('Proceed to checkout'),
           ),
         ],

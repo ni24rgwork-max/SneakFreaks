@@ -11,9 +11,10 @@ Owner: **[@ni24rgwork-max](https://github.com/ni24rgwork-max)**
 
 ## Where things stand
 
-Phases 1–3 of the makeover plan are complete: design system, ₹ currency layer,
-and the Riverpod cart. Phase 4 (routing) is next, and the AI workstream in
-`AI.md` has not started.
+Phases 1–4 of the makeover plan are complete: design system, ₹ currency layer,
+the Riverpod cart, and `go_router` navigation with deep links and an auth
+guard. Phase 5 (UI makeover) is next, and the AI workstream in `AI.md` has not
+started.
 
 The root [README](../README.md) carries the honest built / not-built status
 board. Keep it accurate — it's the first thing anyone evaluating this reads, and

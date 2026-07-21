@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:sneakers_app/theme/app_theme.dart';
 
@@ -12,7 +13,7 @@ PreferredSizeWidget customAppBarDe(BuildContext context, String brand) {
       centerTitle: true,
       title: Text(brand, style: context.text.titleLarge),
       leading: IconButton(
-        onPressed: () => Navigator.pop(context),
+        onPressed: () => context.pop(),
         icon: const Icon(Icons.arrow_back),
         color: context.colors.onSurface,
       ),

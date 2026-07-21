@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+import 'package:sneakers_app/routing/routes.dart';
 
 import 'package:sneakers_app/animation/fadeanimation.dart';
 import 'package:sneakers_app/theme/app_theme.dart';
@@ -33,6 +36,11 @@ class EmptyList extends StatelessWidget {
                   color: context.colors.onSurfaceVariant,
                 ),
               ),
+            ),
+            const SizedBox(height: 8),
+            FilledButton(
+              onPressed: () => context.go(Routes.home),
+              child: const Text('Browse the store'),
             ),
           ],
         ),

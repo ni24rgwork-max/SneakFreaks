@@ -40,7 +40,8 @@ aspirational unless it says so.
 | Currency | ₹ throughout — integer paise, `en_IN` lakh/crore grouping |
 | Cart | Riverpod state, quantities, per-size lines, persisted to disk |
 | Pricing UI | MRP strikethrough, % off, free-delivery threshold, inclusive-of-taxes |
-| Tests | 15 unit tests over cart maths, persistence and money formatting |
+| Routing | `go_router` — per-tab stacks, deep links, auth guard |
+| Tests | 32 tests over cart maths, persistence, money, feed and routing |
 
 ### Not built yet
 
@@ -48,9 +49,8 @@ aspirational unless it says so.
 |---|---|
 | **AI recommendations** | **Designed, not implemented.** See [docs/AI.md](docs/AI.md) |
 | Backend | Not started — catalogue is an in-memory fixture |
-| Auth, checkout, payments | Not started |
-| Search | Not started |
-| Routing / deep links | Not started (`go_router` planned) |
+| Auth, checkout, payments | Routes and guard exist; screens are stubs |
+| Search | Route exists; conversational search not built |
 | Orders, addresses, wishlist | Not started |
 
 > The app currently ships **zero** AI functionality. The recommendation
