@@ -257,11 +257,28 @@ carries identity, a collector tier, the Locker rail and the account rows;
 nav bar stays put and Back returns to the profile. Settings live in a sheet —
 something you occasionally need, not what the page is about.
 
-**What leads the profile is the user's choice** (`ProfileShowcase`: Locker,
+**What leads the profile is the user's choice** (`ProfileShowcase`: My card,
 Stats, Minimal, persisted to preferences). A profile is the one screen a person
 might reasonably want to arrange, so the hero is theirs to pick rather than ours
 to assume. With nothing collected, every mode falls back to a prompt — an
 ornate empty frame is worse than saying what earns a card.
+
+**The profile shows exactly one card — the one the user picked.** A rail of
+everything owned is the Locker's job, and putting it here made the profile a
+second binder. One card is a *pick*; it says something about the person, which
+is what a profile is for.
+
+`featuredCardIdProvider` persists a **product id, not a card**: cards are
+derived from the catalogue and order history, so a persisted card would go stale
+the moment either changed. `featuredCardProvider` resolves that id against what
+is *currently* owned, so a card that leaves the collection cannot linger on the
+profile, and falls back to the rarest card held.
+
+Having no pick stays a real state rather than being silently filled in. The
+display falls back, but the *stored* value stays null — otherwise an automatic
+choice would be indistinguishable from a deliberate one, and the picker could
+never say "no pick yet" or offer to hand the slot back. The pick can be made
+from the profile or from a card's close-up in the Locker.
 
 **Collector tier counts pairs held, never money spent** (`CollectorTier`). A
 tier that rises with spend is a sales quota wearing a badge, and reads as one.

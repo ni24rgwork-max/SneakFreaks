@@ -85,8 +85,8 @@ void main() {
     c.read(ordersProvider.notifier).place(nowMillis: 1000);
     await tester.pumpAndSettle();
 
-    // Shown once. In Locker mode the cards lead the page, so the section below
-    // is the binder's summary rather than the same card art a second time.
+    // Exactly one card on the profile — the pick, not the collection. The
+    // section below reports what the binder holds instead of repeating it.
     expect(find.byType(SneakerCard), findsOneWidget);
     expect(find.text('No cards yet'), findsNothing);
     expect(find.text('1 of 8 collected'), findsOneWidget);
@@ -109,10 +109,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(c.read(profileShowcaseProvider), ProfileShowcase.stats);
-    // Stats lead, and the card art moves down into the Locker rail.
-    expect(find.text('pairs'), findsOneWidget);
-    expect(find.byType(SneakerCard), findsOneWidget);
-    expect(find.text('Set completion'), findsNothing);
+    // Numbers lead instead of the card, and no card art remains.
+    expect(find.text('of the set'), findsOneWidget);
+    expect(find.byType(SneakerCard), findsNothing);
 
     // Written through to preferences, so the choice survives a restart.
     // Reuses the same store rather than calling testOverrides() again, which
@@ -137,6 +136,95 @@ void main() {
     expect(find.text('Nothing to showcase yet'), findsNothing);
     // The locker section is a section, not the showcase — it stays.
     expect(find.text('The Locker'), findsOneWidget);
+  });
+
+  group('the profile shows one card, chosen by the user', () {
+    testWidgets('with no pick, the rarest card stands in', (tester) async {
+      final c = await pumpProfile(tester);
+      final catalogue = c.read(catalogueProvider);
+
+      // sku-001 (₹12,995, Rare) and sku-004 (₹8,995, Common).
+      for (final id in ['sku-004', 'sku-001']) {
+        c
+            .read(cartProvider.notifier)
+            .add(catalogue.firstWhere((p) => p.id == id), size: '8');
+      }
+      c.read(ordersProvider.notifier).place(nowMillis: 1000);
+      await tester.pumpAndSettle();
+
+      expect(c.read(featuredCardIdProvider), isNull);
+      expect(c.read(featuredCardProvider)?.product.id, 'sku-001');
+      expect(find.byType(SneakerCard), findsOneWidget);
+      expect(find.text('Pick your card'), findsOneWidget);
+    });
+
+    testWidgets('a pick wins over the rarest, and persists', (tester) async {
+      final c = await pumpProfile(tester);
+      final catalogue = c.read(catalogueProvider);
+      for (final id in ['sku-004', 'sku-001']) {
+        c
+            .read(cartProvider.notifier)
+            .add(catalogue.firstWhere((p) => p.id == id), size: '8');
+      }
+      c.read(ordersProvider.notifier).place(nowMillis: 2000);
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Pick your card'));
+      await tester.pumpAndSettle();
+      expect(find.text('Your card'), findsOneWidget);
+
+      // Every owned card is offered; tapping one closes the sheet.
+      expect(find.byType(SneakerCard), findsNWidgets(3)); // 1 shown + 2 offered
+      await tester.tap(find.byType(SneakerCard).last);
+      await tester.pumpAndSettle();
+
+      expect(c.read(featuredCardIdProvider), 'sku-004');
+      expect(c.read(featuredCardProvider)?.product.id, 'sku-004');
+      expect(find.text('Change card'), findsOneWidget);
+      expect(find.byType(SneakerCard), findsOneWidget);
+
+      final prefs = c.read(sharedPreferencesProvider);
+      final fresh = ProviderContainer(
+        overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
+      );
+      addTearDown(fresh.dispose);
+      expect(fresh.read(featuredCardIdProvider), 'sku-004');
+    });
+
+    testWidgets('a pick that is no longer owned cannot linger', (tester) async {
+      final c = await pumpProfile(tester);
+      final catalogue = c.read(catalogueProvider);
+
+      await c.read(featuredCardIdProvider.notifier).select('sku-007');
+      c.read(cartProvider.notifier).add(catalogue.first, size: '8');
+      c.read(ordersProvider.notifier).place(nowMillis: 3000);
+      await tester.pumpAndSettle();
+
+      // The id is still stored, but the card shown is one actually held.
+      expect(c.read(featuredCardIdProvider), 'sku-007');
+      expect(c.read(featuredCardProvider)?.product.id, catalogue.first.id);
+    });
+
+    testWidgets('the pick can be handed back to the rarest', (tester) async {
+      final c = await pumpProfile(tester);
+      final catalogue = c.read(catalogueProvider);
+      for (final id in ['sku-004', 'sku-001']) {
+        c
+            .read(cartProvider.notifier)
+            .add(catalogue.firstWhere((p) => p.id == id), size: '8');
+      }
+      c.read(ordersProvider.notifier).place(nowMillis: 4000);
+      await c.read(featuredCardIdProvider.notifier).select('sku-004');
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Change card'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Use my rarest instead'));
+      await tester.pumpAndSettle();
+
+      expect(c.read(featuredCardIdProvider), isNull);
+      expect(c.read(featuredCardProvider)?.product.id, 'sku-001');
+    });
   });
 
   test('the locker has its own address under the profile', () {

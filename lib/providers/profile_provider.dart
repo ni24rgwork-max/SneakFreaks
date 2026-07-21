@@ -9,7 +9,7 @@ import 'package:sneakers_app/providers/locker_provider.dart';
 /// hero is theirs to choose rather than ours to assume. Collectors want cards
 /// on top; someone who just buys shoes wants their numbers or nothing at all.
 enum ProfileShowcase {
-  locker('Locker', 'Your rarest cards, front and centre'),
+  locker('My card', 'One card of your choosing, front and centre'),
   stats('Stats', 'Collection numbers at a glance'),
   minimal('Minimal', 'Just the essentials');
 
@@ -40,6 +40,57 @@ class ProfileShowcaseController extends Notifier<ProfileShowcase> {
 final profileShowcaseProvider =
     NotifierProvider<ProfileShowcaseController, ProfileShowcase>(
         ProfileShowcaseController.new);
+
+/// The one card the shopper puts on their profile.
+///
+/// Stores a product id, not a card: cards are derived from the catalogue and
+/// order history, so persisting one would go stale the moment either changed.
+///
+/// Selecting nothing is a legitimate state and stays that way. The *display*
+/// falls back to the rarest card held (see [featuredCardProvider]) — a
+/// showcase with nothing in it is a broken-looking page, but silently writing
+/// a choice the user never made would then be indistinguishable from one they
+/// did, and the picker could never show "no pick yet".
+class FeaturedCardController extends Notifier<String?> {
+  static const _key = 'profile_featured_card_v1';
+
+  @override
+  String? build() => ref.watch(sharedPreferencesProvider).getString(_key);
+
+  Future<void> select(String productId) async {
+    state = productId;
+    await ref.read(sharedPreferencesProvider).setString(_key, productId);
+  }
+
+  /// Back to the automatic pick.
+  Future<void> clear() async {
+    state = null;
+    await ref.read(sharedPreferencesProvider).remove(_key);
+  }
+}
+
+final featuredCardIdProvider =
+    NotifierProvider<FeaturedCardController, String?>(
+        FeaturedCardController.new);
+
+/// The card actually shown on the profile.
+///
+/// Resolves the stored id against what is *currently* owned, so a card that
+/// leaves the collection cannot linger on the profile. Falls back to the rarest
+/// card held, then to the first — an explicit pick always wins.
+final featuredCardProvider = Provider<LockerCard?>((ref) {
+  final cards = ref.watch(lockerProvider);
+  if (cards.isEmpty) return null;
+
+  final chosen = ref.watch(featuredCardIdProvider);
+  for (final card in cards) {
+    if (card.product.id == chosen) return card;
+  }
+
+  return cards.reduce(
+    (a, b) => b.meta.rarity.index > a.meta.rarity.index ? b : a,
+  );
+});
 
 /// Collector standing, derived from how many cards are held.
 ///

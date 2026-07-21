@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:sneakers_app/providers/locker_provider.dart';
+import 'package:sneakers_app/providers/profile_provider.dart';
 import 'package:sneakers_app/routing/routes.dart';
 import 'package:sneakers_app/theme/app_theme.dart';
 import 'package:sneakers_app/view/locker/widgets/sneaker_card.dart';
@@ -62,6 +63,30 @@ class _CardDetail extends ConsumerWidget {
                   ),
                 ],
               ),
+              Builder(builder: (context) {
+                final featured = ref.watch(featuredCardIdProvider);
+                final isFeatured = featured == slot.product.id;
+                return SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    // Deliberately not a toggle-off: the profile always shows
+                    // some card, so un-featuring has no meaning. Feature a
+                    // different one instead.
+                    onPressed: isFeatured
+                        ? null
+                        : () {
+                            ref
+                                .read(featuredCardIdProvider.notifier)
+                                .select(slot.product.id);
+                            Navigator.pop(context);
+                          },
+                    icon: Icon(isFeatured ? Icons.check : Icons.person_outline),
+                    label: Text(
+                      isFeatured ? 'On your profile' : 'Put on my profile',
+                    ),
+                  ),
+                );
+              }),
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton(

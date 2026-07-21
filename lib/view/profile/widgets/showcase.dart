@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-
 import 'package:sneakers_app/providers/locker_provider.dart';
 import 'package:sneakers_app/providers/profile_provider.dart';
-import 'package:sneakers_app/routing/routes.dart';
 import 'package:sneakers_app/theme/app_theme.dart';
 import 'package:sneakers_app/theme/typography.dart';
 import 'package:sneakers_app/view/locker/widgets/scaled_sneaker_card.dart';
+import 'package:sneakers_app/view/profile/widgets/featured_card_picker.dart';
 
 /// The user-chosen hero of the profile.
 class ProfileShowcaseView extends ConsumerWidget {
@@ -32,40 +30,37 @@ class ProfileShowcaseView extends ConsumerWidget {
   }
 }
 
-/// Featured cards — the rarest first, since that is what a collector would
-/// pin to the top of their own page.
+/// **One** card, the one the user chose.
+///
+/// A rail of everything owned is the Locker's job, and putting it here made the
+/// profile a second binder. A single card is a pick — it says something about
+/// the person, which is what a profile is for.
 class _LockerShowcase extends ConsumerWidget {
   const _LockerShowcase();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Rarest first — what a collector would pin to the top of their own page.
-    // This is the only place cards appear on the profile in this mode, so it
-    // carries the whole collection rather than a top-three.
-    final featured = [...ref.watch(lockerProvider)]
-      ..sort((a, b) => b.meta.rarity.index.compareTo(a.meta.rarity.index));
+    final card = ref.watch(featuredCardProvider);
+    if (card == null) return const _NothingYet();
+
+    final isAutomatic = ref.watch(featuredCardIdProvider) == null;
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: 12,
       children: [
-        SizedBox(
-          // The showcase is the hero, so its cards run near the size the card
-          // was designed at (220 wide). Height drives width at 63:88.
-          height: 300,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            physics: const BouncingScrollPhysics(),
-            itemCount: featured.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 12),
-            itemBuilder: (context, i) => GestureDetector(
-              onTap: () => context.push(Routes.lockerPath),
-              child: ScaledSneakerCard(
-                product: featured[i].product,
-                meta: featured[i].meta,
-              ),
-            ),
+        // Sized against the card's own 220pt design width, centred: the hero
+        // of the page, not an item in a list.
+        GestureDetector(
+          onTap: () => showFeaturedCardPicker(context),
+          child: SizedBox(
+            width: 240,
+            child: ScaledSneakerCard(product: card.product, meta: card.meta),
           ),
+        ),
+        TextButton.icon(
+          onPressed: () => showFeaturedCardPicker(context),
+          icon: const Icon(Icons.swap_horiz, size: 18),
+          label: Text(isAutomatic ? 'Pick your card' : 'Change card'),
         ),
       ],
     );

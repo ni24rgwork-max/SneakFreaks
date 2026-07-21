@@ -11,7 +11,6 @@ import 'package:sneakers_app/routing/routes.dart';
 import 'package:sneakers_app/theme/app_theme.dart';
 import 'package:sneakers_app/theme/typography.dart';
 import 'package:sneakers_app/view/locker/widgets/settings_sheet.dart';
-import 'package:sneakers_app/view/locker/widgets/scaled_sneaker_card.dart';
 import 'package:sneakers_app/view/profile/widget/account_tile.dart';
 import 'package:sneakers_app/view/profile/widgets/showcase.dart';
 import 'package:sneakers_app/view/profile/widgets/showcase_picker.dart';
@@ -30,7 +29,6 @@ class ProfileScreen extends ConsumerWidget {
     final signedIn = ref.watch(authProvider);
     final tier = ref.watch(collectorTierProvider);
     final stats = ref.watch(lockerStatsProvider);
-    final cards = ref.watch(lockerProvider);
     final orders = ref.watch(ordersProvider);
     final cartCount = ref.watch(cartCountProvider);
     final showcase = ref.watch(profileShowcaseProvider);
@@ -85,34 +83,13 @@ class ProfileScreen extends ConsumerWidget {
                 onTap: () => context.push(Routes.lockerPath),
               ),
             ),
+            // Never a rail of every card. The profile shows at most one — the
+            // one the user picked — and the section reports what the binder
+            // holds. The binder itself is a tap away.
             if (stats.isEmpty)
               const SliverToBoxAdapter(child: _LockerEmpty())
-            // When the cards already lead the page, repeating them here reads
-            // as a rendering bug. The section becomes the binder's summary
-            // instead, and the rail moves up into the showcase.
-            else if (showcase == ProfileShowcase.locker)
-              SliverToBoxAdapter(child: _BinderSummary(stats: stats))
             else
-              SliverToBoxAdapter(
-                child: SizedBox(
-                  // Height sets the card width at 63:88 — 252 lands it on 180.
-                  height: 252,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    physics: const BouncingScrollPhysics(),
-                    itemCount: cards.length,
-                    separatorBuilder: (_, __) => const SizedBox(width: 12),
-                    itemBuilder: (context, i) => GestureDetector(
-                      onTap: () => context.push(Routes.lockerPath),
-                      child: ScaledSneakerCard(
-                        product: cards[i].product,
-                        meta: cards[i].meta,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+              SliverToBoxAdapter(child: _BinderSummary(stats: stats)),
 
             // ── Activity ──
             SliverToBoxAdapter(
