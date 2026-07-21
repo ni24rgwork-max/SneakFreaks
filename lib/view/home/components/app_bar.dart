@@ -10,7 +10,7 @@ PreferredSizeWidget customAppBar(BuildContext context) {
       backgroundColor: Colors.transparent,
       title: Padding(
         padding: const EdgeInsets.only(top: 8.0),
-        child: Text('Discover', style: context.text.displaySmall),
+        child: Text('SneakFreaks', style: context.text.displaySmall),
       ),
       actions: [
         Padding(

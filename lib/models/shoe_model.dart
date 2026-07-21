@@ -12,6 +12,8 @@ class ShoeModel {
     required this.modelColor,
     this.mrp,
     this.sizes = const ['6', '7.5', '8', '9.5', '10'],
+    this.isNew = false,
+    this.tags = const [],
   });
 
   /// Stable identity. The cart stores ids rather than product objects, so a
@@ -35,6 +37,13 @@ class ShoeModel {
 
   /// UK sizing, which is what Indian listings quote.
   final List<String> sizes;
+
+  /// Drives the New Arrivals rail and the NEW badge.
+  final bool isNew;
+
+  /// Editorial collection membership, e.g. 'monsoon'. Free-form so a backend
+  /// can add collections without a client release.
+  final List<String> tags;
 
   // TODO(backend): `Color` is a UI concern and is not serializable — it has to
   // leave this model before a backend supplies the catalogue.

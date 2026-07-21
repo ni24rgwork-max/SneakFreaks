@@ -12,15 +12,19 @@ final List<ShoeModel> availableShoes = [
     mrp: Money.rupees(16995),
     imgAddress: "assets/images/nike1.png",
     modelColor: const Color(0xffDE0106),
+    isNew: true,
+    tags: const ['monsoon', 'running'],
   ),
   ShoeModel(
     id: "sku-002",
-    name: "NIKE",
+    name: "JORDAN",
     model: "AIR-JORDAN MID",
     price: Money.rupees(12795),
     mrp: Money.rupees(15995),
     imgAddress: "assets/images/nike8.png",
     modelColor: const Color(0xff3F7943),
+    isNew: true,
+    tags: const ['court'],
   ),
   ShoeModel(
     id: "sku-003",
@@ -30,6 +34,7 @@ final List<ShoeModel> availableShoes = [
     mrp: Money.rupees(13995),
     imgAddress: "assets/images/nike2.png",
     modelColor: const Color(0xffE66863),
+    tags: const ['running'],
   ),
   ShoeModel(
     id: "sku-004",
@@ -39,14 +44,17 @@ final List<ShoeModel> availableShoes = [
     mrp: Money.rupees(10995),
     imgAddress: "assets/images/nike3.png",
     modelColor: const Color(0xffD7D8DC),
+    tags: const ['lifestyle'],
   ),
   ShoeModel(
     id: "sku-005",
-    name: "NIKE",
+    name: "JORDAN",
     model: "AIR-JORDAN LOW",
     price: Money.rupees(12795),
     imgAddress: "assets/images/nike5.png",
     modelColor: const Color(0xff37376B),
+    isNew: true,
+    tags: const ['court', 'lifestyle'],
   ),
   ShoeModel(
     id: "sku-006",
@@ -56,22 +64,26 @@ final List<ShoeModel> availableShoes = [
     mrp: Money.rupees(13995),
     imgAddress: "assets/images/nike4.png",
     modelColor: const Color(0xffE4E3E8),
+    tags: const ['monsoon', 'running'],
   ),
   ShoeModel(
     id: "sku-007",
-    name: "NIKE",
+    name: "JORDAN",
     model: "AIR-JORDAN LOW",
     price: Money.rupees(12795),
     imgAddress: "assets/images/nike7.png",
     modelColor: const Color(0xffD68043),
+    tags: const ['court'],
   ),
   ShoeModel(
     id: "sku-008",
-    name: "NIKE",
+    name: "JORDAN",
     model: "AIR-JORDAN LOW",
     price: Money.rupees(12795),
     imgAddress: "assets/images/nike6.png",
     modelColor: const Color(0xffE2E3E5),
+    isNew: true,
+    tags: const ['lifestyle', 'monsoon'],
   ),
 ];
 
@@ -102,15 +114,6 @@ final List<UserStatus> userStatus = [
   ),
 ];
 
-final List categories = [
-  'Nike',
-  'Adidas',
-  'Jordan',
-  'Puma',
-  'Gucci',
-  'Tom Ford',
-  'Koio',
-];
 final List featured = [
   'New',
   'Featured',
