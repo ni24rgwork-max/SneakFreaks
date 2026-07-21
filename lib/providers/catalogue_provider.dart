@@ -238,11 +238,17 @@ final relatedProvider =
 /// TODO(backend): move extraction to ingestion time and serve the two hex
 /// values on the product record. Doing image work on the client is a fixture-era
 /// convenience, not the shipping design — see docs/AI.md.
+final productColorsProvider =
+    FutureProvider.family<List<Color>, String>((ref, assetPath) async {
+  ref.keepAlive();
+  return productColors(assetPath);
+});
+
 final productPaletteProvider =
     FutureProvider.family<ProductPalette, String>((ref, assetPath) async {
-  ref.keepAlive();
-  final seed = await dominantProductColor(assetPath);
-  return ProductPalette.fromSeed(seed);
+  // Derived from the same decode rather than a second one.
+  final colors = await ref.watch(productColorsProvider(assetPath).future);
+  return ProductPalette.fromSeed(colors.first);
 });
 
 /// Synchronous stand-in used for the first frame.

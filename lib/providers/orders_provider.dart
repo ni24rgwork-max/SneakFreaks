@@ -103,6 +103,60 @@ class OrdersController extends Notifier<List<Order>> {
 final ordersProvider =
     NotifierProvider<OrdersController, List<Order>>(OrdersController.new);
 
+/// The record of one shopper's copy of one product.
+///
+/// This is what makes a card a collectible rather than a catalogue listing with
+/// a border: brand, price and size run describe the *product*, and every owner
+/// of it sees the same values. Size bought, date acquired and copies held
+/// describe *this* copy, and are the only things on the card that are yours.
+///
+/// All of it is already in the order lines. None of it is new data.
+class Provenance {
+  const Provenance({
+    required this.sizes,
+    required this.acquired,
+    required this.copies,
+  });
+
+  /// Sizes actually bought, smallest first.
+  final List<String> sizes;
+
+  /// When the first pair was bought.
+  final DateTime acquired;
+
+  /// Pairs held — a second size is a second pair, and reads as one.
+  final int copies;
+}
+
+final provenanceProvider =
+    Provider.family<Provenance?, String>((ref, productId) {
+  final sizes = <String>[];
+  DateTime? earliest;
+
+  for (final order in ref.watch(ordersProvider)) {
+    for (final line in order.lines) {
+      final parts = line.split('#');
+      if (parts.first != productId) continue;
+      if (parts.length > 1 && parts[1].isNotEmpty) sizes.add(parts[1]);
+      if (earliest == null || order.placedAt.isBefore(earliest)) {
+        earliest = order.placedAt;
+      }
+    }
+  }
+
+  if (earliest == null) return null;
+
+  final distinct = sizes.toSet().toList()
+    ..sort(
+        (a, b) => (double.tryParse(a) ?? 0).compareTo(double.tryParse(b) ?? 0));
+
+  return Provenance(
+    sizes: distinct,
+    acquired: earliest,
+    copies: sizes.length,
+  );
+});
+
 /// The size the shopper buys most, or null before there is enough to say.
 ///
 /// Read off the order lines, which already carry `productId#size`. A sneaker

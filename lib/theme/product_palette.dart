@@ -119,14 +119,19 @@ class ProductPalette {
   }
 }
 
-/// Finds the colour a shopper would call "the colour of this shoe".
+/// The colours a shopper would call "the colours of this shoe", strongest
+/// first.
 ///
 /// Not the average pixel and not the most common one — product shots are
 /// cut-outs that are mostly white midsole and transparent background, so both
 /// of those return grey. This instead buckets by hue and scores each bucket by
 /// how saturated its pixels are, which is what actually surfaces the red heel
 /// on an Air Max or the green collar on a Jordan.
-Future<Color> dominantProductColor(String assetPath) async {
+///
+/// Returns up to [count] distinct hues. Buckets nearer than 40° are folded
+/// together: two adjacent 15° buckets are the same colour to a human eye, and
+/// three swatches that all read "orange" say nothing.
+Future<List<Color>> productColors(String assetPath, {int count = 3}) async {
   final data = await rootBundle.load(assetPath);
 
   // 64px is plenty — the output is one hue, and decoding full-size product
@@ -142,7 +147,7 @@ Future<Color> dominantProductColor(String assetPath) async {
   frame.image.dispose();
   codec.dispose();
 
-  if (bytes == null) return const Color(0xFF6B7280);
+  if (bytes == null) return const [Color(0xFF6B7280)];
 
   const buckets = 24; // 15° of hue each
   final weight = List<double>.filled(buckets, 0);
@@ -173,18 +178,31 @@ Future<Color> dominantProductColor(String assetPath) async {
     sumH[bucket] += hsl.hue * w;
   }
 
-  var best = -1;
-  var bestWeight = 0.0;
-  for (var i = 0; i < buckets; i++) {
-    if (weight[i] > bestWeight) {
-      bestWeight = weight[i];
-      best = i;
-    }
-  }
+  final ranked = [
+    for (var i = 0; i < buckets; i++)
+      if (weight[i] > 0) (hue: sumH[i] / weight[i], weight: weight[i]),
+  ]..sort((a, b) => b.weight.compareTo(a.weight));
 
   // Genuinely achromatic product (all-white or all-black shoe) — hand back a
   // neutral and let fromSeed's saturation floor turn it into charcoal.
-  if (best < 0) return const Color(0xFF6B7280);
+  if (ranked.isEmpty) return const [Color(0xFF6B7280)];
 
-  return HSLColor.fromAHSL(1, sumH[best] / weight[best], 0.6, 0.45).toColor();
+  final picked = <double>[];
+  for (final entry in ranked) {
+    if (picked.length >= count) break;
+    // Hue is circular, so 350° and 10° are 20° apart, not 340°.
+    final tooClose = picked.any((h) {
+      final d = (h - entry.hue).abs();
+      return (d > 180 ? 360 - d : d) < 40;
+    });
+    if (!tooClose) picked.add(entry.hue);
+  }
+
+  return [
+    for (final hue in picked) HSLColor.fromAHSL(1, hue, 0.6, 0.45).toColor(),
+  ];
 }
+
+/// The single colour that defines the shoe — the strongest hue it carries.
+Future<Color> dominantProductColor(String assetPath) async =>
+    (await productColors(assetPath, count: 1)).first;

@@ -45,7 +45,7 @@ aspirational unless it says so.
 | Profile | Identity, a stat-tile grid, hand-picked card, size & fit, grouped account rows |
 | Loading states | Skeletons from the real widget tree; pull-to-refresh |
 | Motion | Tokenised durations, shared-axis page transitions, reduced-motion honoured |
-| The Locker | Collectible cards earned by purchase — TCG-proportioned, real catalogue data, rarity by price, colour pulled from the shoe's own photography |
+| The Locker | Collectible cards earned by purchase — TCG-proportioned, real catalogue data, rarity by price, colour and swatches pulled from the shoe's own photography, provenance from your orders |
 | Layout | Verified at four handset widths, not just a roomy test surface |
 | Tests | 90 tests over cart, money, feed, routing, PDP, profile, locker, orders, layout and motion |
 

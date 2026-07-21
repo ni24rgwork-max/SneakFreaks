@@ -19,6 +19,9 @@ class ShoeModel {
     this.soldOutSizes = const [],
     this.images = const [],
     this.tags = const [],
+    this.styleCode,
+    this.releaseYear,
+    this.countryOfOrigin,
   });
 
   /// Stable identity. The cart stores ids rather than product objects, so a
@@ -81,6 +84,30 @@ class ShoeModel {
   /// Editorial collection membership, e.g. 'monsoon'. Free-form so a backend
   /// can add collections without a client release.
   final List<String> tags;
+
+  /// Manufacturer style/colourway code — the identifier a collector actually
+  /// quotes, e.g. `555088-711`. Null until a supplier provides it; there is no
+  /// deriving one, and a plausible-looking invented code is worse than none
+  /// because it is the field people would trust most.
+  final String? styleCode;
+
+  /// Original release year, as published by the brand.
+  final int? releaseYear;
+
+  /// Required on Indian listings by the Legal Metrology (Packaged Commodities)
+  /// Rules. Null until real catalogue data lands.
+  final String? countryOfOrigin;
+
+  /// [specs] entries that are real, with the fixture placeholders stripped.
+  ///
+  /// The seed catalogue ships `PLACEHOLDER — engineered mesh` and similar, to
+  /// exercise the layout. Printing those on a card next to a real Nike photo
+  /// would read as manufacturer fact, which is exactly the failure this guard
+  /// exists to prevent. Empty today, by design.
+  Map<String, String> get publishedSpecs => {
+        for (final entry in specs.entries)
+          if (!entry.value.startsWith('PLACEHOLDER')) entry.key: entry.value,
+      };
 
   // TODO(backend): `Color` is a UI concern and is not serializable — it has to
   // leave this model before a backend supplies the catalogue.

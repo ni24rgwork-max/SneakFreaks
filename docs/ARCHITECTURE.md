@@ -335,6 +335,33 @@ looking at manufacturer fact. A fabricated "Grip 92" on a real Nike product is a
 different order of problem from placeholder prose, because numbers read as
 authoritative.
 
+**The card carries provenance, not just the listing.** Brand, price and size run
+describe the *product* — every owner sees identical values, which makes the card
+a catalogue entry with a border. `provenanceProvider` adds the three facts that
+are about *this copy*: the size actually bought, the date acquired, and `×2`
+when more than one pair is held. All of it was already in the order lines.
+
+**Colour swatches are read out of the photograph**, via `productColors`, which
+returns the strongest hues with buckets nearer than 40° folded together — three
+swatches that all read "orange" say nothing. Shown only when a shoe genuinely
+has more than one hue, so an all-black Air Force gets no swatch row rather than
+three shades of the same black. A colourway *name* is something a brand
+publishes and we do not have; dots claim only what the picture already shows.
+
+**`styleCode`, `releaseYear` and `countryOfOrigin` exist on the model and are
+null.** A style code (`555088-711`) is the field a collector trusts most, which
+is precisely why a plausible invented one would be the worst thing on the card.
+The rows stay hidden until a supplier fills them. `publishedSpecs` strips the
+fixture's `PLACEHOLDER — …` values for the same reason: printed beside a real
+Nike photo they would read as manufacturer fact.
+
+The info band budgets **six rows**. MRP, the size run and an upcoming drop date
+are the product's own and always win; extras take what is left, so an upcoming
+shoe shows fewer rather than pushing the footer off the card. Making that room
+moved the zone split from 5:3 to 9:7 — the slack under the size run measured
+about one row, not the three it looked like, and the art window gives up roughly
+6% of the card's height.
+
 **Rarity is derived from price** (`CardRarity.forPrice`). Worth recording the
 tradeoff: price-derived rarity means the rarest cards belong to whoever spent
 most, which edges toward a spend badge. Scarcity signals — limited sizes,

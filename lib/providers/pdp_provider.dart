@@ -35,8 +35,8 @@ class SizeSystemController extends Notifier<SizeSystem> {
   void select(SizeSystem s) => state = s;
 }
 
-final sizeSystemProvider =
-    NotifierProvider<SizeSystemController, SizeSystem>(SizeSystemController.new);
+final sizeSystemProvider = NotifierProvider<SizeSystemController, SizeSystem>(
+    SizeSystemController.new);
 
 /// UK → US conversion for men's sneakers is UK + 1. Approximate and
 /// brand-dependent; a real store maps this per brand from supplier data rather

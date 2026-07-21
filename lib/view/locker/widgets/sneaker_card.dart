@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:sneakers_app/models/card_meta.dart';
 import 'package:sneakers_app/models/shoe_model.dart';
 import 'package:sneakers_app/providers/catalogue_provider.dart';
+import 'package:sneakers_app/providers/orders_provider.dart';
 import 'package:sneakers_app/theme/app_theme.dart';
 import 'package:sneakers_app/theme/product_palette.dart';
 import 'package:sneakers_app/theme/typography.dart';
@@ -119,7 +120,7 @@ class SneakerCard extends ConsumerWidget {
   }
 }
 
-class _CardInner extends StatelessWidget {
+class _CardInner extends ConsumerWidget {
   const _CardInner({
     required this.product,
     required this.meta,
@@ -131,9 +132,75 @@ class _CardInner extends StatelessWidget {
   final ProductPalette palette;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     const ink = Color(0xFF14110F);
     final available = product.sizes.where(product.isSizeAvailable).toList();
+    final swatches =
+        ref.watch(productColorsProvider(product.imgAddress)).value ??
+            const <Color>[];
+
+    // Rows below the size run, in priority order, capped to what the info
+    // band's slack holds. Provenance leads: it is the only part of the card
+    // that is about *this* copy rather than the product, and it is the reason
+    // a collector would look twice.
+    //
+    // Everything after it is null until real supplier data lands. A style code
+    // is the field a collector trusts most, which is exactly why an invented
+    // one would be the worst thing on the card.
+    final extras = <Widget>[
+      if (ref.watch(provenanceProvider(product.id)) case final owned?) ...[
+        _Row(
+          label: 'Yours',
+          value: owned.sizes.isEmpty
+              ? '—'
+              : owned.sizes.map((s) => 'UK $s').join(', '),
+          trailing: owned.copies > 1 ? '×${owned.copies}' : null,
+          ink: ink,
+          accent: palette.accentInk,
+        ),
+        _Row(
+          label: 'Got',
+          value: DateFormat('d MMM yyyy').format(owned.acquired),
+          ink: ink,
+          accent: palette.accentInk,
+        ),
+      ],
+      if (swatches.length > 1) _SwatchRow(swatches: swatches, ink: ink),
+      if (product.styleCode case final code?)
+        _Row(
+          label: 'Style',
+          value: code,
+          trailing: product.releaseYear?.toString(),
+          ink: ink,
+          accent: palette.accentInk,
+        ),
+      if (product.countryOfOrigin case final origin?)
+        _Row(
+            label: 'Made in',
+            value: origin,
+            ink: ink,
+            accent: palette.accentInk),
+      for (final spec in product.publishedSpecs.entries)
+        _Row(
+          label: spec.key,
+          value: spec.value,
+          ink: ink,
+          accent: palette.accentInk,
+        ),
+    ]
+        // The band holds six rows and still breathes. MRP, the size run and
+        // an upcoming drop date are the product's own and always win, so what
+        // is left is the budget — an upcoming shoe shows fewer extras rather
+        // than pushing the footer off the card.
+        //
+        // The zone split moved from 5:3 to 9:7 to make this room. The visible
+        // slack under the size run was about one row, not the three it looked
+        // like; the art window gives up roughly 6% of the card's height.
+        .take(6 -
+            ((product.mrp == null ? 0 : 1) +
+                1 +
+                (product.dropsOn == null ? 0 : 1)))
+        .toList();
 
     return Container(
       decoration: BoxDecoration(
@@ -186,7 +253,7 @@ class _CardInner extends StatelessWidget {
 
           // ── Art window ──
           Expanded(
-            flex: 5,
+            flex: 9,
             child: Container(
               width: double.infinity,
               decoration: BoxDecoration(
@@ -205,7 +272,7 @@ class _CardInner extends StatelessWidget {
 
           // ── Info band: only fields the store actually publishes ──
           Expanded(
-            flex: 3,
+            flex: 7,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -237,6 +304,7 @@ class _CardInner extends StatelessWidget {
                     ink: ink,
                     accent: palette.accentInk,
                   ),
+                ...extras,
                 const Spacer(),
                 Container(height: 0.7, color: ink.withValues(alpha: 0.18)),
                 const SizedBox(height: 3),
@@ -279,6 +347,53 @@ class _CardInner extends StatelessWidget {
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The shoe's own colours, as swatches.
+///
+/// Read out of the photograph rather than named, because a colourway name is
+/// something a brand publishes and we do not have — three dots claim only what
+/// the picture already shows.
+class _SwatchRow extends StatelessWidget {
+  const _SwatchRow({required this.swatches, required this.ink});
+
+  final List<Color> swatches;
+  final Color ink;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 2),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 30,
+            child: Text(
+              'Colour',
+              style: AppTypography.build().labelSmall?.copyWith(
+                    color: ink.withValues(alpha: 0.5),
+                    fontSize: 6.5,
+                  ),
+            ),
+          ),
+          for (final color in swatches)
+            Padding(
+              padding: const EdgeInsets.only(right: 3),
+              child: Container(
+                width: 7,
+                height: 7,
+                decoration: BoxDecoration(
+                  color: color,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                      color: ink.withValues(alpha: 0.25), width: 0.5),
+                ),
+              ),
+            ),
         ],
       ),
     );
