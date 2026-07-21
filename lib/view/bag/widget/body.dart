@@ -1,245 +1,330 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, unnecessary_brace_in_string_interps, sized_box_for_whitespace
-
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:sneakers_app/models/cart_line.dart';
+import 'package:sneakers_app/providers/cart_provider.dart';
 import 'package:sneakers_app/theme/app_theme.dart';
 import 'package:sneakers_app/theme/typography.dart';
+import 'package:sneakers_app/utils/money.dart';
+import 'package:sneakers_app/view/bag/widget/empty_list.dart';
 
-import '../../../../utils/app_methods.dart';
-import '../../../animation/fadeanimation.dart';
-import '../../../view/bag/widget/empty_list.dart';
-import '../../../data/dummy_data.dart';
-import '../../../models/models.dart';
-
-class BodyBagView extends StatefulWidget {
-  const BodyBagView({Key? key}) : super(key: key);
+class BodyBagView extends ConsumerWidget {
+  const BodyBagView({super.key});
 
   @override
-  _BodyBagViewState createState() => _BodyBagViewState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Every value below is derived from the provider on each build. The old
+    // screen cached `itemsOnBag.length` in a State field, which froze the
+    // count at whatever it was when the screen was first constructed.
+    final lines = ref.watch(resolvedCartProvider);
+    final count = ref.watch(cartCountProvider);
 
-class _BodyBagViewState extends State<BodyBagView>
-    with SingleTickerProviderStateMixin {
-  int lengthsOfItemsOnBag = itemsOnBag.length;
-
-  @override
-  Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    final height = MediaQuery.of(context).size.height;
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 8.0),
-      width: width,
-      height: height,
-      child: Column(
-        children: [
-          topText(width, height),
-          Divider(
-            color: Colors.grey,
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
+            children: [
+              Text('My Bag', style: context.text.displaySmall),
+              const Spacer(),
+              Text(
+                count == 1 ? '1 item' : '$count items',
+                style: context.text.labelLarge
+                    ?.copyWith(color: context.colors.onSurfaceVariant),
+              ),
+            ],
           ),
-          itemsOnBag.isEmpty
-              ? EmptyList()
-              : Column(children: [
-                  mainListView(width, height),
-                  SizedBox(
-                    height: 12,
-                  ),
-                  bottomInfo(width, height),
-                ])
+        ),
+        const Divider(height: 1),
+        if (lines.isEmpty)
+          const Expanded(child: EmptyList())
+        else ...[
+          Expanded(
+            child: ListView.separated(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              itemCount: lines.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 4),
+              itemBuilder: (context, i) => _CartTile(resolved: lines[i]),
+            ),
+          ),
+          const _Summary(),
         ],
-      ),
+      ],
     );
   }
+}
 
-  // Top Texts Components
-  topText(width, height) {
-    return Container(
-      width: width,
-      height: height / 14,
-      child: FadeAnimation(
-        delay: 0,
+class _CartTile extends ConsumerWidget {
+  const _CartTile({required this.resolved});
+  final ResolvedCartLine resolved;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final product = resolved.product;
+    final line = resolved.line;
+    final cart = ref.read(cartProvider.notifier);
+    final index = ref.read(cartProvider).indexWhere((l) => l.key == line.key);
+
+    return Dismissible(
+      key: ValueKey(line.key),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 28),
+        color: context.colors.error.withValues(alpha: 0.14),
+        child: Icon(Icons.delete_outline, color: context.colors.error),
+      ),
+      onDismissed: (_) {
+        cart.remove(line.key);
+        // Destructive actions get an undo rather than a confirm dialog — fewer
+        // taps in the common case, still recoverable in the rare one.
+        ScaffoldMessenger.of(context)
+          ..hideCurrentSnackBar()
+          ..showSnackBar(
+            SnackBar(
+              content: Text('${product.model} removed'),
+              action: SnackBarAction(
+                label: 'Undo',
+                onPressed: () => cart.restore(line, index),
+              ),
+            ),
+          );
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          spacing: 14,
           children: [
-            Text('My Bag', style: context.text.displaySmall),
-            Text(
-              "Total ${lengthsOfItemsOnBag} Items",
-              style: context.text.labelLarge?.copyWith(color: context.colors.onSurfaceVariant),
+            Container(
+              width: 92,
+              height: 92,
+              decoration: BoxDecoration(
+                color: product.modelColor.withValues(alpha: 0.16),
+                borderRadius: BorderRadius.circular(context.brand.cardRadius),
+              ),
+              padding: const EdgeInsets.all(6),
+              child: Image.asset(product.imgAddress, fit: BoxFit.contain),
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 2,
+                children: [
+                  Text(
+                    product.name,
+                    style: context.text.labelMedium
+                        ?.copyWith(color: context.colors.onSurfaceVariant),
+                  ),
+                  Text(product.model, style: context.text.titleMedium),
+                  Text(
+                    'UK ${line.size}',
+                    style: context.text.bodySmall
+                        ?.copyWith(color: context.colors.onSurfaceVariant),
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Text(
+                        resolved.lineTotal.formatted,
+                        style: context.text.titleMedium
+                            ?.copyWith(fontFeatures: AppTypography.tabular),
+                      ),
+                      const Spacer(),
+                      _QuantityStepper(line: line),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ],
         ),
       ),
     );
   }
+}
 
-  // Material Button Components
-  materialButton(width, height) {
-    return FadeAnimation(
-      delay: 3,
-      child: MaterialButton(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        minWidth: width / 1.2,
-        height: height / 15,
-        color: context.colors.primary,
-        onPressed: () {},
-        child: Text(
-          "NEXT",
-          style: TextStyle(color: Colors.white),
+class _QuantityStepper extends ConsumerWidget {
+  const _QuantityStepper({required this.line});
+  final CartLine line;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cart = ref.read(cartProvider.notifier);
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: context.brand.hairline),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _StepButton(
+            icon:
+                line.quantity == 1 ? Icons.delete_outline : Icons.remove_rounded,
+            onTap: () => cart.decrement(line.key),
+            tooltip: line.quantity == 1 ? 'Remove' : 'Decrease quantity',
+          ),
+          SizedBox(
+            width: 28,
+            child: Text(
+              '${line.quantity}',
+              textAlign: TextAlign.center,
+              style: context.text.titleSmall
+                  ?.copyWith(fontFeatures: AppTypography.tabular),
+            ),
+          ),
+          _StepButton(
+            icon: Icons.add_rounded,
+            onTap: () => cart.increment(line.key),
+            tooltip: 'Increase quantity',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StepButton extends StatelessWidget {
+  const _StepButton({
+    required this.icon,
+    required this.onTap,
+    required this.tooltip,
+  });
+  final IconData icon;
+  final VoidCallback onTap;
+  final String tooltip;
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: tooltip,
+      child: InkWell(
+        onTap: onTap,
+        customBorder: const CircleBorder(),
+        child: Padding(
+          padding: const EdgeInsets.all(7),
+          child: Icon(icon, size: 17, color: context.colors.onSurface),
         ),
       ),
     );
   }
+}
 
-  // Main ListView Components
-  mainListView(width, height) {
+class _Summary extends ConsumerWidget {
+  const _Summary();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final subtotal = ref.watch(cartSubtotalProvider);
+    final mrpTotal = ref.watch(cartMrpTotalProvider);
+    final savings = ref.watch(cartSavingsProvider);
+    final delivery = ref.watch(deliveryFeeProvider);
+    final total = ref.watch(cartTotalProvider);
+    final toFreeDelivery = Money(freeDeliveryThreshold.paise - subtotal.paise);
+
     return Container(
-      width: width,
-      height: height / 1.6,
-      child: ListView.builder(
-          physics: BouncingScrollPhysics(),
-          scrollDirection: Axis.vertical,
-          itemCount: itemsOnBag.length,
-          itemBuilder: (ctx, index) {
-            ShoeModel currentBagItem = itemsOnBag[index];
-
-            return FadeAnimation(
-              delay: 1.5 * index / 4,
-              child: Container(
-                margin: EdgeInsets.symmetric(vertical: 1),
-                width: width,
-                height: height / 5.2,
-                child: Row(
-                  children: [
-                    Container(
-                      width: width / 2.8,
-                      height: height / 5.7,
-                      child: Stack(children: [
-                        Positioned(
-                          top: 20,
-                          left: 10,
-                          child: Container(
-                            width: width / 3.6,
-                            height: height / 7.1,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(25),
-                              color: Colors.grey[350],
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                            right: 2,
-                            bottom: 15,
-                            child: RotationTransition(
-                              turns: AlwaysStoppedAnimation(-40 / 360),
-                              child: Container(
-                                width: 140,
-                                height: 140,
-                                child: Image(
-                                  image: AssetImage(
-                                    currentBagItem.imgAddress,
-                                  ),
-                                ),
-                              ),
-                            ))
-                      ]),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 40),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(currentBagItem.model,
-                              style: context.text.titleMedium),
-                          SizedBox(
-                            height: 4,
-                          ),
-                          Text(currentBagItem.price.formatted,
-                              style: context.text.titleLarge?.copyWith(fontFeatures: AppTypography.tabular)),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Row(
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    itemsOnBag.remove(currentBagItem);
-                                    lengthsOfItemsOnBag = itemsOnBag.length;
-                                  });
-                                },
-                                child: Container(
-                                  width: 30,
-                                  height: 30,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: Colors.grey[300],
-                                  ),
-                                  child: Center(
-                                      child: Icon(
-                                    Icons.remove,
-                                    size: 15,
-                                  )),
-                                ),
-                              ),
-                              SizedBox(
-                                width: 10,
-                              ),
-                              Text("1", style: context.text.titleMedium),
-                              SizedBox(
-                                width: 10,
-                              ),
-                              GestureDetector(
-                                onTap: () {},
-                                child: Container(
-                                  width: 30,
-                                  height: 30,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: Colors.grey[300],
-                                  ),
-                                  child: Center(
-                                      child: Icon(
-                                    Icons.add,
-                                    size: 15,
-                                  )),
-                                ),
-                              ),
-                            ],
-                          )
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }),
-    );
-  }
-
-  bottomInfo(width, height) {
-    return Container(
-      margin: EdgeInsets.only(top: 10.0),
-      width: width,
-      height: height / 7,
+      decoration: BoxDecoration(
+        color: context.colors.surfaceContainerLow,
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(context.brand.sheetRadius),
+        ),
+      ),
+      padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
+        spacing: 8,
         children: [
-          FadeAnimation(
-            delay: 2,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text("TOTAL", style: context.text.labelLarge?.copyWith(color: context.colors.onSurfaceVariant)),
-                Text(AppMethods.sumOfItemsOnBag().formatted,
-                    style: context.text.titleLarge?.copyWith(fontFeatures: AppTypography.tabular)),
-              ],
+          if (delivery.paise > 0 && toFreeDelivery.paise > 0)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Add ${toFreeDelivery.formatted} more for free delivery',
+                style: context.text.bodySmall
+                    ?.copyWith(color: context.brand.accentText),
+              ),
             ),
+          // Starts from total MRP so the rows actually add up. Listing the
+          // discounted subtotal first and then subtracting the discount again
+          // double-counts it and reads as broken arithmetic.
+          _SummaryRow(label: 'Total MRP', value: mrpTotal.formatted),
+          if (savings.paise > 0)
+            _SummaryRow(
+              label: 'Discount',
+              value: '− ${savings.formatted}',
+              valueColor: context.brand.success,
+            ),
+          _SummaryRow(
+            label: 'Delivery',
+            value: delivery.paise == 0 ? 'FREE' : delivery.formatted,
+            valueColor: delivery.paise == 0 ? context.brand.success : null,
           ),
-          SizedBox(
-            height: 30,
+          Divider(color: context.brand.hairline, height: 14),
+          Row(
+            children: [
+              Text('Total', style: context.text.titleMedium),
+              const Spacer(),
+              Text(
+                total.formatted,
+                style: context.text.headlineSmall
+                    ?.copyWith(fontFeatures: AppTypography.tabular),
+              ),
+            ],
           ),
-          materialButton(width, height)
+          if (savings.paise > 0)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'You saved ${savings.formatted}',
+                style: context.text.labelMedium
+                    ?.copyWith(color: context.brand.success),
+              ),
+            ),
+          Text(
+            'Inclusive of all taxes',
+            style: context.text.bodySmall
+                ?.copyWith(color: context.colors.onSurfaceVariant),
+          ),
+          const SizedBox(height: 4),
+          FilledButton(
+            onPressed: () {},
+            child: const Text('Proceed to checkout'),
+          ),
         ],
       ),
+    );
+  }
+}
+
+class _SummaryRow extends StatelessWidget {
+  const _SummaryRow({
+    required this.label,
+    required this.value,
+    this.valueColor,
+  });
+  final String label;
+  final String value;
+  final Color? valueColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Text(
+          label,
+          style: context.text.bodyMedium
+              ?.copyWith(color: context.colors.onSurfaceVariant),
+        ),
+        const Spacer(),
+        Text(
+          value,
+          style: context.text.bodyMedium?.copyWith(
+            color: valueColor,
+            fontFeatures: AppTypography.tabular,
+          ),
+        ),
+      ],
     );
   }
 }

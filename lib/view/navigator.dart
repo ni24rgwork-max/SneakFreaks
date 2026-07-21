@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:sneakers_app/providers/cart_provider.dart';
 import 'package:sneakers_app/view/bag/bag_screen.dart';
 import 'package:sneakers_app/view/home/home_screen.dart';
 import 'package:sneakers_app/view/profile/profile_screen.dart';
-import 'package:sneakers_app/widget/theme_switcher.dart';
 
 class MainNavigator extends ConsumerStatefulWidget {
   const MainNavigator({super.key});
@@ -14,11 +14,8 @@ class MainNavigator extends ConsumerStatefulWidget {
 }
 
 class _MainNavigatorState extends ConsumerState<MainNavigator> {
-  static const _initialTab = int.fromEnvironment('TAB');
-
-  final PageController _pageController =
-      PageController(initialPage: _initialTab);
-  int _selectedIndex = _initialTab;
+  final PageController _pageController = PageController();
+  int _selectedIndex = 0;
 
   static const _screens = [HomeScreen(), MyBagScreen(), Profile()];
 
@@ -34,35 +31,40 @@ class _MainNavigatorState extends ConsumerState<MainNavigator> {
 
   @override
   Widget build(BuildContext context) {
+    // The badge is now possible at all because the cart is observable. Under
+    // the old global list nothing could watch it.
+    final cartCount = ref.watch(cartCountProvider);
+
     return Scaffold(
-      body: Stack(
-        children: [
-          PageView(
-            controller: _pageController,
-            physics: const NeverScrollableScrollPhysics(),
-            onPageChanged: (i) => setState(() => _selectedIndex = i),
-            children: _screens,
-          ),
-          // Comparison affordance while the two brand directions are still
-          // being evaluated. Delete once a palette is chosen.
-          const Positioned(right: 10, top: 6, child: ThemeSwitcher()),
-        ],
+      body: PageView(
+        controller: _pageController,
+        physics: const NeverScrollableScrollPhysics(),
+        onPageChanged: (i) => setState(() => _selectedIndex = i),
+        children: _screens,
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: _onDestinationSelected,
-        destinations: const [
-          NavigationDestination(
+        destinations: [
+          const NavigationDestination(
             icon: Icon(Icons.home_outlined),
             selectedIcon: Icon(Icons.home),
             label: 'Home',
           ),
           NavigationDestination(
-            icon: Icon(Icons.shopping_bag_outlined),
-            selectedIcon: Icon(Icons.shopping_bag),
+            icon: Badge.count(
+              count: cartCount,
+              isLabelVisible: cartCount > 0,
+              child: const Icon(Icons.shopping_bag_outlined),
+            ),
+            selectedIcon: Badge.count(
+              count: cartCount,
+              isLabelVisible: cartCount > 0,
+              child: const Icon(Icons.shopping_bag),
+            ),
             label: 'Bag',
           ),
-          NavigationDestination(
+          const NavigationDestination(
             icon: Icon(Icons.person_outline),
             selectedIcon: Icon(Icons.person),
             label: 'Profile',

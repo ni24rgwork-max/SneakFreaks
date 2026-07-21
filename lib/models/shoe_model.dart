@@ -3,16 +3,25 @@ import 'package:flutter/material.dart';
 import 'package:sneakers_app/utils/money.dart';
 
 class ShoeModel {
-  ShoeModel({
+  const ShoeModel({
+    required this.id,
     required this.name,
     required this.model,
     required this.price,
     required this.imgAddress,
     required this.modelColor,
     this.mrp,
+    this.sizes = const ['6', '7.5', '8', '9.5', '10'],
   });
 
+  /// Stable identity. The cart stores ids rather than product objects, so a
+  /// line survives the catalogue being replaced by a backend response.
+  final String id;
+
+  /// Brand — Nike, Adidas, Jordan, Puma. This is a multi-brand storefront, so
+  /// brand is data, never hardcoded in a screen.
   final String name;
+
   final String model;
 
   /// Selling price. See [Money] — integer paise, never double.
@@ -24,7 +33,10 @@ class ShoeModel {
 
   final String imgAddress;
 
-  // TODO(phase-3): `Color` is a UI concern and is not serializable — it has to
+  /// UK sizing, which is what Indian listings quote.
+  final List<String> sizes;
+
+  // TODO(backend): `Color` is a UI concern and is not serializable — it has to
   // leave this model before a backend supplies the catalogue.
   final Color modelColor;
 

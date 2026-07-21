@@ -1,6 +1,8 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace
 
 import 'package:flutter/material.dart';
+
+import 'package:sneakers_app/widget/appearance_tile.dart';
 import 'package:sneakers_app/theme/app_theme.dart';
 import 'package:sneakers_app/theme/typography.dart';
 
@@ -242,6 +244,7 @@ class _BodyProfileState extends State<BodyProfile> {
                 ),
               ),
             ),
+            const AppearanceTile(),
             RoundedLisTile(
               leadingBackColor: Colors.grey[400],
               icon: Icons.shield,

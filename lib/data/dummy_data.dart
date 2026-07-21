@@ -5,6 +5,7 @@ import '../utils/money.dart';
 
 final List<ShoeModel> availableShoes = [
   ShoeModel(
+    id: "sku-001",
     name: "NIKE",
     model: "AIR-MAX",
     price: Money.rupees(12995),
@@ -13,6 +14,7 @@ final List<ShoeModel> availableShoes = [
     modelColor: const Color(0xffDE0106),
   ),
   ShoeModel(
+    id: "sku-002",
     name: "NIKE",
     model: "AIR-JORDAN MID",
     price: Money.rupees(12795),
@@ -21,6 +23,7 @@ final List<ShoeModel> availableShoes = [
     modelColor: const Color(0xff3F7943),
   ),
   ShoeModel(
+    id: "sku-003",
     name: "NIKE",
     model: "ZOOM",
     price: Money.rupees(10995),
@@ -29,6 +32,7 @@ final List<ShoeModel> availableShoes = [
     modelColor: const Color(0xffE66863),
   ),
   ShoeModel(
+    id: "sku-004",
     name: "NIKE",
     model: "Air-FORCE",
     price: Money.rupees(8995),
@@ -37,6 +41,7 @@ final List<ShoeModel> availableShoes = [
     modelColor: const Color(0xffD7D8DC),
   ),
   ShoeModel(
+    id: "sku-005",
     name: "NIKE",
     model: "AIR-JORDAN LOW",
     price: Money.rupees(12795),
@@ -44,6 +49,7 @@ final List<ShoeModel> availableShoes = [
     modelColor: const Color(0xff37376B),
   ),
   ShoeModel(
+    id: "sku-006",
     name: "NIKE",
     model: "ZOOM",
     price: Money.rupees(10995),
@@ -52,6 +58,7 @@ final List<ShoeModel> availableShoes = [
     modelColor: const Color(0xffE4E3E8),
   ),
   ShoeModel(
+    id: "sku-007",
     name: "NIKE",
     model: "AIR-JORDAN LOW",
     price: Money.rupees(12795),
@@ -59,6 +66,7 @@ final List<ShoeModel> availableShoes = [
     modelColor: const Color(0xffD68043),
   ),
   ShoeModel(
+    id: "sku-008",
     name: "NIKE",
     model: "AIR-JORDAN LOW",
     price: Money.rupees(12795),
@@ -66,8 +74,6 @@ final List<ShoeModel> availableShoes = [
     modelColor: const Color(0xffE2E3E5),
   ),
 ];
-
-List<ShoeModel> itemsOnBag = [];
 
 final List<UserStatus> userStatus = [
   UserStatus(

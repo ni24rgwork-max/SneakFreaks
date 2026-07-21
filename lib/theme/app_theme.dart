@@ -5,8 +5,8 @@ import 'palette.dart';
 import 'typography.dart';
 
 abstract final class AppTheme {
-  static ThemeData of(AppPalette palette, Brightness brightness) {
-    final spec = paletteSpec(palette, brightness);
+  static ThemeData of(Brightness brightness) {
+    final spec = paletteSpec(brightness);
     final cs = spec.colors;
     final tokens = spec.tokens;
     final text = AppTypography.build().apply(

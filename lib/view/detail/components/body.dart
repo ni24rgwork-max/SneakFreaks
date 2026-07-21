@@ -1,27 +1,29 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace, must_be_immutable, use_key_in_widget_constructors
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:sneakers_app/widget/add_to_bag.dart';
 
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 import '../../../../../animation/fadeanimation.dart';
-import '../../../../../utils/app_methods.dart';
 import '../../../../../models/shoe_model.dart';
 import '../../../data/dummy_data.dart';
 import '../../../models/models.dart';
 import 'package:sneakers_app/theme/app_theme.dart';
 import 'package:sneakers_app/theme/typography.dart';
 
-class DetailsBody extends StatefulWidget {
+class DetailsBody extends ConsumerStatefulWidget {
   ShoeModel model;
   bool isComeFromMoreSection;
   DetailsBody({required this.model, required this.isComeFromMoreSection});
 
   @override
-  details createState() => details();
+  ConsumerState<DetailsBody> createState() => details();
 }
 
-class details extends State<DetailsBody> {
+class details extends ConsumerState<DetailsBody> {
   bool _isSelectedCountry = false;
   int? _isSelectedSize;
 
@@ -196,7 +198,14 @@ class details extends State<DetailsBody> {
         height: height / 15,
         color: context.colors.primary,
         onPressed: () {
-          AppMethods.addToCart(widget.model, context);
+          final i = _isSelectedSize;
+          addToBag(
+            context,
+            ref,
+            widget.model,
+            // If a size is already chosen on the page, skip the picker.
+            size: i == null ? null : widget.model.sizes[i],
+          );
         },
         child: Text(
           "ADD TO BAG",
@@ -245,7 +254,7 @@ class details extends State<DetailsBody> {
               width: width / 1.5,
               child: ListView.builder(
                   physics: BouncingScrollPhysics(),
-                  itemCount: 4,
+                  itemCount: widget.model.sizes.length,
                   scrollDirection: Axis.horizontal,
                   itemBuilder: (ctx, index) {
                     return GestureDetector(
@@ -262,22 +271,22 @@ class details extends State<DetailsBody> {
                           borderRadius: BorderRadius.circular(10),
                           border: Border.all(
                               color: _isSelectedSize == index
-                                  ? Colors.black
-                                  : Colors.grey,
+                                  ? context.colors.primary
+                                  : context.brand.interactiveBorder,
                               width: 1.5),
                           color: _isSelectedSize == index
-                              ? Colors.black
+                              ? context.colors.primary
                               : context.colors.surface,
                         ),
                         child: Center(
                           child: Text(
-                            sizes[index].toString(),
+                            widget.model.sizes[index],
                             style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                                 color: _isSelectedSize == index
-                                    ? Colors.white
-                                    : Colors.black),
+                                    ? context.colors.onPrimary
+                                    : context.colors.onSurface),
                           ),
                         ),
                       ),
