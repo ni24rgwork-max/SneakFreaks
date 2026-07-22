@@ -47,6 +47,7 @@ extension MotionEffects on Widget {
           curve: Curves.easeOut,
         )
         .then()
-        .scaleXY(end: 1, duration: BrandTokens.motionFast, curve: Curves.easeIn);
+        .scaleXY(
+            end: 1, duration: BrandTokens.motionFast, curve: Curves.easeIn);
   }
 }

@@ -58,9 +58,8 @@ class _Chip extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: Material(
-        color: selected
-            ? context.colors.primary
-            : context.colors.surfaceContainer,
+        color:
+            selected ? context.colors.primary : context.colors.surfaceContainer,
         shape: StadiumBorder(
           side: BorderSide(
             color: selected ? context.colors.primary : context.brand.hairline,

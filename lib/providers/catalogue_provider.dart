@@ -152,6 +152,14 @@ final buyableProvider = Provider<List<ShoeModel>>((ref) {
 // Each rail is a distinct slice. Previously every section rendered the same
 // unfiltered list, so "More" and the carousel showed identical products.
 
+/// How many products the hero carousel will page through.
+///
+/// The carousel draws one indicator dot per item. Against a fixture of eight
+/// that was a page indicator; against a real catalogue of two hundred it is a
+/// dotted line, and nobody swipes two hundred cards. The rails below are where
+/// breadth belongs.
+const _heroLimit = 8;
+
 final featuredProvider = Provider<List<ShoeModel>>((ref) {
   final tab = ref.watch(featuredTabProvider);
 
@@ -160,12 +168,12 @@ final featuredProvider = Provider<List<ShoeModel>>((ref) {
       return [
         for (final p in ref.watch(filteredCatalogueProvider))
           if (p.isUpcoming) p,
-      ];
+      ].take(_heroLimit).toList(growable: false);
     case FeaturedTab.newIn:
       return [
         for (final p in ref.watch(buyableProvider))
           if (p.isNew) p,
-      ];
+      ].take(_heroLimit).toList(growable: false);
     case FeaturedTab.featured:
       final buyable = ref.watch(buyableProvider);
       // Lead with discounted stock — the % off is the primary decision driver
@@ -174,16 +182,20 @@ final featuredProvider = Provider<List<ShoeModel>>((ref) {
         for (final p in buyable)
           if (p.discountPercent != null) p,
       ];
-      return discounted.isEmpty ? buyable : discounted;
+      return (discounted.isEmpty ? buyable : discounted)
+          .take(_heroLimit)
+          .toList(growable: false);
   }
 });
+
+const _railLimit = 14;
 
 final newArrivalsProvider = Provider<List<ShoeModel>>((ref) {
   final items = ref.watch(buyableProvider);
   return [
     for (final p in items)
       if (p.isNew) p,
-  ];
+  ].take(_railLimit).toList(growable: false);
 });
 
 /// Price-band rail. A near-universal fixture of Indian storefronts.
@@ -194,7 +206,7 @@ final underBudgetProvider = Provider<List<ShoeModel>>((ref) {
   return [
     for (final p in items)
       if (p.price.paise <= underBudget.paise) p,
-  ];
+  ].take(_railLimit).toList(growable: false);
 });
 
 final collectionProvider = Provider.family<List<ShoeModel>, String>((ref, tag) {

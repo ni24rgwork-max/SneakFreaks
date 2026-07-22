@@ -36,7 +36,7 @@ void main() {
 
     expect(find.text('SneakFreaks'), findsOneWidget);
     expect(find.text('New Arrivals'), findsOneWidget);
-    expect(find.text('MONSOON READY'), findsOneWidget);
+    expect(find.text('COURT CLASSICS'), findsOneWidget);
     expect(find.text('Under ₹10,000'), findsOneWidget);
     expect(find.text('Trending'), findsOneWidget);
   });
@@ -60,15 +60,19 @@ void main() {
       tester.element(find.byType(HomeScreen)),
     );
 
-    // 8 in the catalogue, 2 of them unreleased drops.
-    expect(container.read(catalogueProvider).length, 8);
-    expect(container.read(trendingProvider).length, 6);
+    // Asserted structurally rather than against fixture counts, so growing
+    // the catalogue is not a test failure.
+    final all = container.read(catalogueProvider);
+    expect(all.length, greaterThan(50));
+    final unfiltered = container.read(trendingProvider).length;
+    expect(unfiltered, greaterThan(0));
 
     container.read(brandFilterProvider.notifier).select('JORDAN');
     await tester.pump();
 
     final trending = container.read(trendingProvider);
-    expect(trending.length, 3); // 4 Jordan, 1 unreleased
+    expect(trending, isNotEmpty);
+    expect(trending.length, lessThan(unfiltered));
     expect(trending.every((p) => p.name == 'JORDAN'), isTrue);
     // Rails derive from the same filtered list, so they narrow together.
     expect(
@@ -97,7 +101,7 @@ void main() {
     tabs.select(FeaturedTab.upcoming);
     await tester.pump();
     final upcoming = container.read(featuredProvider);
-    expect(upcoming.length, 2);
+    expect(upcoming, isNotEmpty);
     expect(upcoming.every((p) => p.isUpcoming), isTrue);
 
     tabs.select(FeaturedTab.featured);
@@ -120,7 +124,7 @@ void main() {
       container.read(trendingProvider),
       container.read(newArrivalsProvider),
       container.read(underBudgetProvider),
-      container.read(collectionProvider('monsoon')),
+      container.read(collectionProvider('court')),
     ]) {
       expect(list.any((p) => p.isUpcoming), isFalse);
     }
@@ -132,17 +136,22 @@ void main() {
       tester.element(find.byType(HomeScreen)),
     );
 
+    // Pick a brand that actually has an unreleased drop, rather than
+    // hardcoding one and breaking whenever the catalogue is regenerated.
+    final brand =
+        container.read(catalogueProvider).firstWhere((p) => p.isUpcoming).name;
+
     container.read(featuredTabProvider.notifier).select(FeaturedTab.upcoming);
-    container.read(brandFilterProvider.notifier).select('JORDAN');
+    container.read(brandFilterProvider.notifier).select(brand);
     await tester.pump();
 
     final result = container.read(featuredProvider);
-    expect(result.length, 1);
-    expect(result.single.name, 'JORDAN');
-    expect(result.single.isUpcoming, isTrue);
+    expect(result, isNotEmpty);
+    expect(result.every((p) => p.name == brand && p.isUpcoming), isTrue);
   });
 
-  testWidgets('sections hold distinct slices, not the same list', (tester) async {
+  testWidgets('sections hold distinct slices, not the same list',
+      (tester) async {
     await pumpFeed(tester);
     final container = ProviderScope.containerOf(
       tester.element(find.byType(HomeScreen)),

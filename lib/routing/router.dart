@@ -33,7 +33,6 @@ final routerProvider = Provider<GoRouter>((ref) {
     navigatorKey: _rootKey,
     initialLocation: Routes.home,
     debugLogDiagnostics: false,
-
     redirect: (context, state) {
       // Custom-scheme deep links arrive as a whole URI, and Uri parses
       // `sneakfreaks://product/sku-004` as host=product, path=/sku-004 — so
@@ -53,9 +52,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       }
       return null;
     },
-
     errorBuilder: (context, state) => _NotFound(location: state.uri.toString()),
-
     routes: [
       // Each branch keeps its own navigation stack, so opening a product from
       // Home, switching to Bag and coming back returns you to the product

@@ -88,7 +88,8 @@ void main() {
     // Exactly one card on the profile — the pick, not the collection. The
     // section below reports what the binder holds instead of repeating it.
     expect(find.byType(SneakerCard), findsOneWidget);
-    expect(find.text('1 of 8 collected'), findsOneWidget);
+    final total = c.read(catalogueProvider).length;
+    expect(find.text('1 of $total collected'), findsOneWidget);
     expect(find.text('1'), findsWidgets); // the pairs tile
   });
 
@@ -143,17 +144,20 @@ void main() {
       final c = await pumpProfile(tester);
       final catalogue = c.read(catalogueProvider);
 
-      // sku-001 (₹12,995, Rare) and sku-004 (₹8,995, Common).
-      for (final id in ['sku-004', 'sku-001']) {
-        c
-            .read(cartProvider.notifier)
-            .add(catalogue.firstWhere((p) => p.id == id), size: '8');
+      // A cheap pair and a dear one, so which is rarest is unambiguous
+      // whatever the catalogue currently holds.
+      final ordered = [...catalogue]
+        ..sort((a, b) => a.price.paise.compareTo(b.price.paise));
+      final cheap = ordered.first;
+      final dear = ordered.last;
+      for (final product in [cheap, dear]) {
+        c.read(cartProvider.notifier).add(product, size: product.sizes.first);
       }
       c.read(ordersProvider.notifier).place(nowMillis: 1000);
       await tester.pumpAndSettle();
 
       expect(c.read(featuredCardIdProvider), isNull);
-      expect(c.read(featuredCardProvider)?.product.id, 'sku-001');
+      expect(c.read(featuredCardProvider)?.product.id, dear.id);
       expect(find.byType(SneakerCard), findsOneWidget);
       expect(find.text('YOUR RAREST'), findsOneWidget);
     });
@@ -161,10 +165,14 @@ void main() {
     testWidgets('a pick wins over the rarest, and persists', (tester) async {
       final c = await pumpProfile(tester);
       final catalogue = c.read(catalogueProvider);
-      for (final id in ['sku-004', 'sku-001']) {
-        c
-            .read(cartProvider.notifier)
-            .add(catalogue.firstWhere((p) => p.id == id), size: '8');
+      // A cheap pair and a dear one, so which is rarest is unambiguous
+      // whatever the catalogue currently holds.
+      final ordered = [...catalogue]
+        ..sort((a, b) => a.price.paise.compareTo(b.price.paise));
+      final cheap = ordered.first;
+      final dear = ordered.last;
+      for (final product in [cheap, dear]) {
+        c.read(cartProvider.notifier).add(product, size: product.sizes.first);
       }
       c.read(ordersProvider.notifier).place(nowMillis: 2000);
       await tester.pumpAndSettle();
@@ -178,8 +186,10 @@ void main() {
       await tester.tap(find.byType(SneakerCard).last);
       await tester.pumpAndSettle();
 
-      expect(c.read(featuredCardIdProvider), 'sku-004');
-      expect(c.read(featuredCardProvider)?.product.id, 'sku-004');
+      final picked = c.read(featuredCardIdProvider);
+      expect(picked, isNotNull);
+      expect(c.read(featuredCardProvider)?.product.id, picked);
+      expect(picked, isNot(dear.id));
       expect(find.text('YOUR CARD'), findsOneWidget);
       expect(find.byType(SneakerCard), findsOneWidget);
 
@@ -188,33 +198,39 @@ void main() {
         overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
       );
       addTearDown(fresh.dispose);
-      expect(fresh.read(featuredCardIdProvider), 'sku-004');
+      expect(fresh.read(featuredCardIdProvider), picked);
     });
 
     testWidgets('a pick that is no longer owned cannot linger', (tester) async {
       final c = await pumpProfile(tester);
       final catalogue = c.read(catalogueProvider);
 
-      await c.read(featuredCardIdProvider.notifier).select('sku-007');
+      // An id the shopper will not own.
+      final unowned = catalogue.last.id;
+      await c.read(featuredCardIdProvider.notifier).select(unowned);
       c.read(cartProvider.notifier).add(catalogue.first, size: '8');
       c.read(ordersProvider.notifier).place(nowMillis: 3000);
       await tester.pumpAndSettle();
 
       // The id is still stored, but the card shown is one actually held.
-      expect(c.read(featuredCardIdProvider), 'sku-007');
+      expect(c.read(featuredCardIdProvider), unowned);
       expect(c.read(featuredCardProvider)?.product.id, catalogue.first.id);
     });
 
     testWidgets('the pick can be handed back to the rarest', (tester) async {
       final c = await pumpProfile(tester);
       final catalogue = c.read(catalogueProvider);
-      for (final id in ['sku-004', 'sku-001']) {
-        c
-            .read(cartProvider.notifier)
-            .add(catalogue.firstWhere((p) => p.id == id), size: '8');
+      // A cheap pair and a dear one, so which is rarest is unambiguous
+      // whatever the catalogue currently holds.
+      final ordered = [...catalogue]
+        ..sort((a, b) => a.price.paise.compareTo(b.price.paise));
+      final cheap = ordered.first;
+      final dear = ordered.last;
+      for (final product in [cheap, dear]) {
+        c.read(cartProvider.notifier).add(product, size: product.sizes.first);
       }
       c.read(ordersProvider.notifier).place(nowMillis: 4000);
-      await c.read(featuredCardIdProvider.notifier).select('sku-004');
+      await c.read(featuredCardIdProvider.notifier).select(cheap.id);
       await tester.pumpAndSettle();
 
       await tester.tap(find.text('YOUR CARD'));
@@ -223,7 +239,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(c.read(featuredCardIdProvider), isNull);
-      expect(c.read(featuredCardProvider)?.product.id, 'sku-001');
+      expect(c.read(featuredCardProvider)?.product.id, dear.id);
     });
   });
 
@@ -231,11 +247,8 @@ void main() {
     testWidgets('the card tile names the pick', (tester) async {
       final c = await pumpProfile(tester);
       final catalogue = c.read(catalogueProvider);
-      for (final id in ['sku-001', 'sku-002']) {
-        c.read(cartProvider.notifier).add(
-              catalogue.firstWhere((p) => p.id == id),
-              size: '9',
-            );
+      for (final product in catalogue.take(2)) {
+        c.read(cartProvider.notifier).add(product, size: '9');
       }
       c.read(ordersProvider.notifier).place(nowMillis: 5000);
       await tester.pumpAndSettle();

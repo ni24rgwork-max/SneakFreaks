@@ -22,6 +22,7 @@ class ShoeModel {
     this.styleCode,
     this.releaseYear,
     this.countryOfOrigin,
+    this.isPreOrder = false,
   });
 
   /// Stable identity. The cart stores ids rather than product objects, so a
@@ -54,7 +55,14 @@ class ShoeModel {
   /// excluded from every buyable rail.
   final DateTime? dropsOn;
 
-  bool get isUpcoming => dropsOn != null;
+  /// Announced and orderable ahead of release, per the retailer's own
+  /// PRE-ORDER tag. Real feeds carry no release *dates*, so a pre-order flag
+  /// is the honest signal for "not on shelves yet" — inventing a drop date to
+  /// fill the Upcoming tab would be exactly the kind of plausible fiction the
+  /// rest of the catalogue avoids.
+  final bool isPreOrder;
+
+  bool get isUpcoming => dropsOn != null || isPreOrder;
 
   /// Marketing copy. Null renders a "description coming soon" state rather
   /// than the lorem ipsum the old detail page hardcoded — a placeholder that

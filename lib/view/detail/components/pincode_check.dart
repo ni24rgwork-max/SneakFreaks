@@ -61,7 +61,9 @@ class _PincodeCheckState extends ConsumerState<PincodeCheck> {
               spacing: 7,
               children: [
                 Icon(
-                  result.valid ? Icons.local_shipping_outlined : Icons.error_outline,
+                  result.valid
+                      ? Icons.local_shipping_outlined
+                      : Icons.error_outline,
                   size: 16,
                   color: result.valid
                       ? context.brand.success

@@ -38,13 +38,22 @@ Future<ProviderContainer> pumpPdp(WidgetTester tester, String id) async {
 
 void main() {
   testWidgets('shows the discount, not just the selling price', (tester) async {
-    await pumpPdp(tester, 'sku-001');
+    // Any discounted product; the catalogue is regenerated from a live feed,
+    // so pinning to one sku and its exact rupee figures is a false failure
+    // waiting to happen.
+    final probe = ProviderContainer(overrides: await testOverrides());
+    final discounted = probe
+        .read(catalogueProvider)
+        .firstWhere((p) => p.discountPercent != null);
+    probe.dispose();
+
+    await pumpPdp(tester, discounted.id);
 
     // The old page showed a bare price, dropping the strongest purchase
     // signal at exactly the point of decision.
-    expect(find.text('₹12,995'), findsWidgets);
-    expect(find.text('₹16,995'), findsOneWidget);
-    expect(find.text('24% OFF'), findsOneWidget);
+    expect(find.text(discounted.price.formatted), findsWidgets);
+    expect(find.text(discounted.mrp!.formatted), findsOneWidget);
+    expect(find.text('${discounted.discountPercent}% OFF'), findsOneWidget);
     expect(find.text('Inclusive of all taxes'), findsOneWidget);
   });
 
@@ -60,19 +69,26 @@ void main() {
 
   testWidgets('sold-out sizes are shown, struck through, and not selectable',
       (tester) async {
-    final c = await pumpPdp(tester, 'sku-001');
-    final product = c.read(productByIdProvider('sku-001'))!;
+    final probe = ProviderContainer(overrides: await testOverrides());
+    final partial = probe.read(catalogueProvider).firstWhere((p) =>
+        p.soldOutSizes.isNotEmpty && p.sizes.any((s) => p.isSizeAvailable(s)));
+    probe.dispose();
 
-    expect(product.soldOutSizes, contains('7.5'));
-    expect(product.isSizeAvailable('7.5'), isFalse);
-    expect(product.isSizeAvailable('8'), isTrue);
+    final gone = partial.soldOutSizes.first;
+    final open = partial.sizes.firstWhere(partial.isSizeAvailable);
+
+    final c = await pumpPdp(tester, partial.id);
+    final product = c.read(productByIdProvider(partial.id))!;
+
+    expect(product.isSizeAvailable(gone), isFalse);
+    expect(product.isSizeAvailable(open), isTrue);
 
     // Rendered rather than hidden: a shopper can see the size exists at all.
-    expect(find.text('7.5'), findsWidgets);
+    expect(find.text(gone), findsWidgets);
 
-    await tester.tap(find.text('8').first);
+    await tester.tap(find.text(open).first);
     await tester.pump();
-    expect(c.read(selectedSizeProvider('sku-001')), '8');
+    expect(c.read(selectedSizeProvider(partial.id)), open);
   });
 
   testWidgets('size selection is per product, not global', (tester) async {
@@ -103,8 +119,12 @@ void main() {
 
     expect(product.description, isNotNull);
     // The old page put this in a height/9 box with no ellipsis, slicing it
-    // mid-sentence. Nothing constrains it now.
-    expect(find.textContaining('PLACEHOLDER COPY'), findsOneWidget);
+    // mid-sentence. Nothing constrains it now, so the whole string renders —
+    // and the copy is the retailer's real product description, not the
+    // placeholder the fixture used to carry.
+    expect(product.description, isNot(contains('PLACEHOLDER')));
+    expect(find.textContaining(product.description!.substring(0, 40)),
+        findsOneWidget);
     expect(find.text('Description'), findsOneWidget);
     expect(find.text('Delivery & returns'), findsOneWidget);
   });
@@ -127,7 +147,12 @@ void main() {
 
   testWidgets('an upcoming product offers notify, not add to bag',
       (tester) async {
-    await pumpPdp(tester, 'sku-006');
+    final probe = ProviderContainer(overrides: await testOverrides());
+    final unreleased =
+        probe.read(catalogueProvider).firstWhere((p) => p.isUpcoming);
+    probe.dispose();
+
+    await pumpPdp(tester, unreleased.id);
 
     expect(find.text('NOTIFY ME'), findsOneWidget);
     expect(find.text('ADD TO BAG'), findsNothing);
@@ -135,8 +160,7 @@ void main() {
     expect(find.text('Select size'), findsNothing);
   });
 
-  testWidgets('related rail excludes the product being viewed',
-      (tester) async {
+  testWidgets('related rail excludes the product being viewed', (tester) async {
     final c = await pumpPdp(tester, 'sku-001');
     final related = c.read(relatedProvider('sku-001'));
 
@@ -144,6 +168,6 @@ void main() {
     expect(related.any((p) => p.id == 'sku-001'), isFalse);
     expect(related.any((p) => p.isUpcoming), isFalse);
     // Same brand leads.
-    expect(related.first.name, 'NIKE');
+    expect(related.first.name, c.read(productByIdProvider('sku-001'))!.name);
   });
 }

@@ -31,7 +31,8 @@ class SizeSelector extends ConsumerWidget {
         children: [
           Row(
             children: [
-              Expanded(child: Text('Select size', style: context.text.titleMedium)),
+              Expanded(
+                  child: Text('Select size', style: context.text.titleMedium)),
               SegmentedButton<SizeSystem>(
                 showSelectedIcon: false,
                 style: SegmentedButton.styleFrom(
@@ -60,7 +61,9 @@ class SizeSelector extends ConsumerWidget {
                   available: product.isSizeAvailable(size),
                   onTap: () {
                     HapticFeedback.selectionClick();
-                    ref.read(selectedSizeProvider(product.id).notifier).select(size);
+                    ref
+                        .read(selectedSizeProvider(product.id).notifier)
+                        .select(size);
                   },
                 ),
             ],

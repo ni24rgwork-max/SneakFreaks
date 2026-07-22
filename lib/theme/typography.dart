@@ -82,16 +82,23 @@ abstract final class AppTypography {
   static TextTheme build() {
     return TextTheme(
       // Editorial moments — screen titles, hero product names.
-      displayLarge: _archivo(size: 44, wght: 800, wdth: 88, height: 1.02, letterSpacing: -1.0),
-      displayMedium: _archivo(size: 36, wght: 800, wdth: 88, height: 1.04, letterSpacing: -0.8),
-      displaySmall: _archivo(size: 30, wght: 700, height: 1.08, letterSpacing: -0.5),
+      displayLarge: _archivo(
+          size: 44, wght: 800, wdth: 88, height: 1.02, letterSpacing: -1.0),
+      displayMedium: _archivo(
+          size: 36, wght: 800, wdth: 88, height: 1.04, letterSpacing: -0.8),
+      displaySmall:
+          _archivo(size: 30, wght: 700, height: 1.08, letterSpacing: -0.5),
 
-      headlineLarge: _archivo(size: 28, wght: 700, height: 1.12, letterSpacing: -0.4),
-      headlineMedium: _archivo(size: 24, wght: 700, height: 1.16, letterSpacing: -0.3),
-      headlineSmall: _archivo(size: 20, wght: 600, height: 1.2, letterSpacing: -0.2),
+      headlineLarge:
+          _archivo(size: 28, wght: 700, height: 1.12, letterSpacing: -0.4),
+      headlineMedium:
+          _archivo(size: 24, wght: 700, height: 1.16, letterSpacing: -0.3),
+      headlineSmall:
+          _archivo(size: 20, wght: 600, height: 1.2, letterSpacing: -0.2),
 
       // Structural UI.
-      titleLarge: _inter(size: 20, wght: 600, height: 1.25, letterSpacing: -0.2),
+      titleLarge:
+          _inter(size: 20, wght: 600, height: 1.25, letterSpacing: -0.2),
       titleMedium: _inter(size: 16, wght: 600, height: 1.3),
       titleSmall: _inter(size: 14, wght: 600, height: 1.35),
 
@@ -107,6 +114,6 @@ abstract final class AppTypography {
 
   /// A condensed, uppercase treatment for brand/product wordmarks — the
   /// `AIR-MAX` style lockup on product cards.
-  static TextStyle wordmark({required double size}) =>
-      _archivo(size: size, wght: 800, wdth: 70, height: 1.0, letterSpacing: 0.2);
+  static TextStyle wordmark({required double size}) => _archivo(
+      size: size, wght: 800, wdth: 70, height: 1.0, letterSpacing: 0.2);
 }

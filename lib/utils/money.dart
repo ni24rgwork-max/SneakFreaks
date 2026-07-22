@@ -28,5 +28,5 @@ extension type const Money(int paise) implements Object {
 final NumberFormat _inr =
     NumberFormat.currency(locale: 'en_IN', symbol: '₹', decimalDigits: 0);
 
-final NumberFormat _inrCompact =
-    NumberFormat.compactCurrency(locale: 'en_IN', symbol: '₹', decimalDigits: 1);
+final NumberFormat _inrCompact = NumberFormat.compactCurrency(
+    locale: 'en_IN', symbol: '₹', decimalDigits: 1);

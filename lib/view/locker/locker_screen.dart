@@ -62,7 +62,6 @@ class LockerScreen extends ConsumerWidget {
                 ),
               ),
             ),
-
             if (stats.isEmpty)
               const SliverFillRemaining(
                 hasScrollBody: false,

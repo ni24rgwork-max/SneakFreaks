@@ -49,8 +49,8 @@ class _Settings extends ConsumerWidget {
                       Text(
                         'Sign in to track orders, save addresses and sync your '
                         'collection across devices.',
-                        style: context.text.bodySmall?.copyWith(
-                            color: context.colors.onSurfaceVariant),
+                        style: context.text.bodySmall
+                            ?.copyWith(color: context.colors.onSurfaceVariant),
                       ),
                       FilledButton(
                         onPressed: () {

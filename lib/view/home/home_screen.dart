@@ -52,83 +52,82 @@ class HomeScreen extends ConsumerWidget {
             onRefresh: () =>
                 ref.read(catalogueAsyncProvider.notifier).refresh(),
             child: CustomScrollView(
-          physics: const BouncingScrollPhysics(),
-          slivers: [
-            const SliverToBoxAdapter(child: BrandRail()),
-            const SliverToBoxAdapter(child: SizedBox(height: 14)),
-            const SliverToBoxAdapter(child: FeedTabs()),
-            const SliverToBoxAdapter(child: SizedBox(height: 12)),
-            const SliverToBoxAdapter(child: FeaturedCarousel()),
-
-            if (newArrivals.isNotEmpty) ...[
-              SliverToBoxAdapter(
-                child: SectionHeader(
-                  title: 'New Arrivals',
-                  subtitle: 'Fresh drops this week',
-                  onSeeAll: () {},
+              physics: const BouncingScrollPhysics(),
+              slivers: [
+                const SliverToBoxAdapter(child: BrandRail()),
+                const SliverToBoxAdapter(child: SizedBox(height: 14)),
+                const SliverToBoxAdapter(child: FeedTabs()),
+                const SliverToBoxAdapter(child: SizedBox(height: 12)),
+                const SliverToBoxAdapter(child: FeaturedCarousel()),
+                if (newArrivals.isNotEmpty) ...[
+                  SliverToBoxAdapter(
+                    child: SectionHeader(
+                      title: 'New Arrivals',
+                      subtitle: 'Fresh drops this week',
+                      onSeeAll: () {},
+                    ),
+                  ),
+                  SliverToBoxAdapter(child: ProductRail(products: newArrivals)),
+                ],
+                const SliverToBoxAdapter(child: SizedBox(height: 30)),
+                const SliverToBoxAdapter(
+                  child: EditorialBanner(
+                    // Keyed to a category the catalogue actually carries rather
+                    // than a seasonal tag invented for the fixture.
+                    tag: 'court',
+                    eyebrow: 'Collection',
+                    title: 'COURT CLASSICS',
+                    blurb:
+                        'Basketball and terrace silhouettes, on and off court.',
+                  ),
                 ),
-              ),
-              SliverToBoxAdapter(child: ProductRail(products: newArrivals)),
-            ],
-
-            const SliverToBoxAdapter(child: SizedBox(height: 30)),
-            const SliverToBoxAdapter(
-              child: EditorialBanner(
-                tag: 'monsoon',
-                eyebrow: 'Collection',
-                title: 'MONSOON READY',
-                blurb: 'Grip and water resistance for the season.',
-              ),
-            ),
-
-            if (budget.isNotEmpty) ...[
-              SliverToBoxAdapter(
-                child: SectionHeader(
-                  title: 'Under ₹10,000',
-                  subtitle: 'Premium picks, sensible spend',
-                  onSeeAll: () {},
+                if (budget.isNotEmpty) ...[
+                  SliverToBoxAdapter(
+                    child: SectionHeader(
+                      title: 'Under ₹10,000',
+                      subtitle: 'Premium picks, sensible spend',
+                      onSeeAll: () {},
+                    ),
+                  ),
+                  SliverToBoxAdapter(child: ProductRail(products: budget)),
+                ],
+                SliverToBoxAdapter(
+                  child: SectionHeader(
+                    title: 'Trending',
+                    subtitle: brand == null
+                        ? '${trending.length} pairs in stock'
+                        : '${trending.length} from $brand',
+                  ),
                 ),
-              ),
-              SliverToBoxAdapter(child: ProductRail(products: budget)),
-            ],
-
-            SliverToBoxAdapter(
-              child: SectionHeader(
-                title: 'Trending',
-                subtitle: brand == null
-                    ? '${trending.length} pairs in stock'
-                    : '${trending.length} from $brand',
-              ),
-            ),
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
-              sliver: SliverGrid(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 20,
-                  crossAxisSpacing: 14,
-                  childAspectRatio: 0.64,
-                ),
-                delegate: SliverChildBuilderDelegate(
-                  (context, i) => ProductCard(product: trending[i]),
-                  childCount: trending.length,
-                ),
-              ),
-            ),
-
-            if (trending.isEmpty)
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 60),
-                  child: Center(
-                    child: Text(
-                      'Nothing in stock for $brand yet',
-                      style: context.text.bodyMedium
-                          ?.copyWith(color: context.colors.onSurfaceVariant),
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
+                  sliver: SliverGrid(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      mainAxisSpacing: 20,
+                      crossAxisSpacing: 14,
+                      childAspectRatio: 0.64,
+                    ),
+                    delegate: SliverChildBuilderDelegate(
+                      (context, i) => ProductCard(product: trending[i]),
+                      childCount: trending.length,
                     ),
                   ),
                 ),
-              ),
+                if (trending.isEmpty)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 60),
+                      child: Center(
+                        child: Text(
+                          'Nothing in stock for $brand yet',
+                          style: context.text.bodyMedium?.copyWith(
+                              color: context.colors.onSurfaceVariant),
+                        ),
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),

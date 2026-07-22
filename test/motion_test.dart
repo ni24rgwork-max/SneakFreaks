@@ -8,6 +8,8 @@ import 'package:sneakers_app/theme/brand_tokens.dart';
 import 'package:sneakers_app/theme/motion.dart';
 import 'package:sneakers_app/view/detail/detail_screen.dart';
 
+import 'package:sneakers_app/providers/catalogue_provider.dart';
+
 import 'harness.dart';
 
 Future<void> pumpWithMotion(
@@ -70,18 +72,23 @@ void main() {
     expect(find.byType(Animate), findsNothing);
   });
 
-  testWidgets('the PDP renders fully with animations disabled',
-      (tester) async {
+  testWidgets('the PDP renders fully with animations disabled', (tester) async {
     // Reduced motion must not cost content — a section that only appears via
     // its entrance animation would vanish for these users.
+    final probe = ProviderContainer(overrides: await testOverrides());
+    final product = probe
+        .read(catalogueProvider)
+        .firstWhere((p) => p.discountPercent != null && !p.isUpcoming);
+    probe.dispose();
+
     await pumpWithMotion(
       tester,
-      const DetailScreen(productId: 'sku-001'),
+      DetailScreen(productId: product.id),
       disableAnimations: true,
     );
 
-    expect(find.text('₹12,995'), findsWidgets);
-    expect(find.text('24% OFF'), findsOneWidget);
+    expect(find.text(product.price.formatted), findsWidgets);
+    expect(find.text('${product.discountPercent}% OFF'), findsOneWidget);
     expect(find.text('Select size'), findsOneWidget);
     expect(find.text('ADD TO BAG'), findsOneWidget);
     expect(find.text('Description'), findsOneWidget);

@@ -34,8 +34,7 @@ class ProductCard extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   color: context.colors.surfaceContainerLowest,
-                  borderRadius:
-                      BorderRadius.circular(context.brand.cardRadius),
+                  borderRadius: BorderRadius.circular(context.brand.cardRadius),
                   border: Border.all(color: context.brand.hairline),
                 ),
                 clipBehavior: Clip.antiAlias,

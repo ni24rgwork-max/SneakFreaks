@@ -49,8 +49,8 @@ class DetailSections extends StatelessWidget {
                                   color: context.colors.onSurfaceVariant)),
                         ),
                         Expanded(
-                          child: Text(entry.value,
-                              style: context.text.bodySmall),
+                          child:
+                              Text(entry.value, style: context.text.bodySmall),
                         ),
                       ],
                     ),

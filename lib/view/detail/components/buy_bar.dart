@@ -41,8 +41,14 @@ class BuyBar extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   if (upcoming)
+                    // A pre-order has no published release date, so say what
+                    // is actually known rather than force-unwrapping one.
                     Text(
-                      'Drops ${DateFormat('d MMM').format(product.dropsOn!)}',
+                      switch (product.dropsOn) {
+                        final date? =>
+                          'Drops ${DateFormat('d MMM').format(date)}',
+                        _ => 'Pre-order',
+                      },
                       style: context.text.titleMedium
                           ?.copyWith(fontFeatures: AppTypography.tabular),
                     )
@@ -53,7 +59,9 @@ class BuyBar extends ConsumerWidget {
                           ?.copyWith(fontFeatures: AppTypography.tabular),
                     ),
                     Text(
-                      selectedSize == null ? 'Select a size' : 'UK $selectedSize',
+                      selectedSize == null
+                          ? 'Select a size'
+                          : 'UK $selectedSize',
                       style: context.text.bodySmall?.copyWith(
                         color: selectedSize == null
                             ? context.brand.accentText

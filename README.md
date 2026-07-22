@@ -47,6 +47,7 @@ aspirational unless it says so.
 | Motion | Tokenised durations, shared-axis page transitions, reduced-motion honoured |
 | The Locker | Collectible cards earned by purchase — TCG-proportioned, real catalogue data, rarity by price, colour and swatches pulled from the shoe's own photography, provenance from your orders |
 | Layout | Verified at four handset widths, not just a roomy test surface |
+| Catalogue | 217 products, 11 brands, harvested from live Indian retailer feeds — real prices, MRP, stock, style codes |
 | Tests | 90 tests over cart, money, feed, routing, PDP, profile, locker, orders, layout and motion |
 
 ### Not built yet

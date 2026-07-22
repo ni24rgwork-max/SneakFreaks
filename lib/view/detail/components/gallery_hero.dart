@@ -138,11 +138,13 @@ class _CollapsedTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     final settings =
         context.dependOnInheritedWidgetOfExactType<FlexibleSpaceBarSettings>();
-    final deltaExtent = (settings?.maxExtent ?? 400) - (settings?.minExtent ?? 88);
+    final deltaExtent =
+        (settings?.maxExtent ?? 400) - (settings?.minExtent ?? 88);
     final t = deltaExtent <= 0
         ? 1.0
         : (1.0 -
-                ((settings?.currentExtent ?? 400) - (settings?.minExtent ?? 88)) /
+                ((settings?.currentExtent ?? 400) -
+                        (settings?.minExtent ?? 88)) /
                     deltaExtent)
             .clamp(0.0, 1.0);
 

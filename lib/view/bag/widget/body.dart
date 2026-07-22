@@ -164,8 +164,9 @@ class _QuantityStepper extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           _StepButton(
-            icon:
-                line.quantity == 1 ? Icons.delete_outline : Icons.remove_rounded,
+            icon: line.quantity == 1
+                ? Icons.delete_outline
+                : Icons.remove_rounded,
             onTap: () => cart.decrement(line.key),
             tooltip: line.quantity == 1 ? 'Remove' : 'Decrease quantity',
           ),

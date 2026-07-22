@@ -98,8 +98,7 @@ class EditorialBanner extends ConsumerWidget {
                       ),
                     ),
                     GestureDetector(
-                      onTap: () =>
-                          context.push(Routes.collectionPath(tag)),
+                      onTap: () => context.push(Routes.collectionPath(tag)),
                       child: Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 13, vertical: 7),

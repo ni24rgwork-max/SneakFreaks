@@ -101,7 +101,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
 
   void _place() {
     // Counted before placing, since the bag is cleared as part of it.
-    final earned = ref.read(cartProvider).map((l) => l.productId).toSet().length;
+    final earned =
+        ref.read(cartProvider).map((l) => l.productId).toSet().length;
 
     // DateTime.now() lives at the call site rather than inside the notifier so
     // the store stays deterministic and testable.
@@ -134,8 +135,7 @@ class _Confirmation extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               spacing: 12,
               children: [
-                Icon(Icons.check_circle,
-                        size: 56, color: context.brand.success)
+                Icon(Icons.check_circle, size: 56, color: context.brand.success)
                     .enter(context),
                 Text('Order placed', style: context.text.headlineSmall)
                     .enter(context, index: 1),

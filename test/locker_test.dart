@@ -112,7 +112,8 @@ void main() {
     c.read(ordersProvider.notifier).place(nowMillis: 2000);
     await tester.pumpAndSettle();
 
-    expect(c.read(lockerProvider).single.meta.setLabel, '003/008');
+    final total = catalogue.length.toString().padLeft(3, '0');
+    expect(c.read(lockerProvider).single.meta.setLabel, '003/$total');
     expect(c.read(lockerStatsProvider).total, catalogue.length);
   });
 
@@ -136,18 +137,31 @@ void main() {
       (tester) async {
     final c = await pumpLocker(tester);
     final catalogue = c.read(catalogueProvider);
-    ShoeModel bySku(String id) => catalogue.firstWhere((p) => p.id == id);
 
-    for (final id in ['sku-001', 'sku-003', 'sku-002']) {
-      c.read(cartProvider.notifier).add(bySku(id), size: '8');
+    // Two products from one brand and one from another, chosen from whatever
+    // the catalogue holds rather than by hardcoded sku.
+    final first = catalogue.first;
+    final sameBrand =
+        catalogue.firstWhere((p) => p.name == first.name && p.id != first.id);
+    final otherBrand = catalogue.firstWhere((p) => p.name != first.name);
+
+    for (final product in [first, sameBrand, otherBrand]) {
+      c.read(cartProvider.notifier).add(product, size: product.sizes.first);
     }
     c.read(ordersProvider.notifier).place(nowMillis: 5000);
     await tester.pumpAndSettle();
 
     final stats = c.read(lockerStatsProvider);
     expect(stats.owned, 3);
-    expect(stats.brands, 2); // NIKE + JORDAN
-    expect(stats.rarest, CardRarity.rare); // the ₹12,995 pair
+    expect(stats.brands, 2);
+    expect(
+      stats.rarest,
+      CardRarity.forPrice(
+        [first, sameBrand, otherBrand]
+            .map((p) => p.price)
+            .reduce((a, b) => a.paise > b.paise ? a : b),
+      ),
+    );
   });
 
   testWidgets('an empty bag cannot produce an order', (tester) async {

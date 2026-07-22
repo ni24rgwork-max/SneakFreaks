@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:sneakers_app/providers/catalogue_provider.dart';
+
 import 'harness.dart';
 import 'package:sneakers_app/providers/auth_provider.dart';
 import 'package:sneakers_app/routing/router.dart';
@@ -53,7 +55,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(currentLocation(c), '/product/sku-001');
-    expect(find.text('AIR-MAX'), findsWidgets);
+    expect(
+      find.text(c.read(productByIdProvider('sku-001'))!.model),
+      findsWidgets,
+    );
   });
 
   testWidgets('an unknown product id shows a message, not a crash',
@@ -108,7 +113,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(currentLocation(c), '/product/sku-004');
-    expect(find.text('Air-FORCE'), findsWidgets);
+    expect(
+      find.text(c.read(productByIdProvider('sku-004'))!.model),
+      findsWidgets,
+    );
     expect(find.textContaining("couldn't find"), findsNothing);
   });
 

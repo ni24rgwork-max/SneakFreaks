@@ -68,7 +68,8 @@ class DetailScreen extends ConsumerWidget {
     // Sections enter in sequence so the eye lands on price, then size, then
     // supporting detail — instead of the whole page arriving at once.
     // `enter` handles the reduced-motion check centrally.
-    Widget stagger(Widget child, int index) => child.enter(context, index: index);
+    Widget stagger(Widget child, int index) =>
+        child.enter(context, index: index);
 
     return Scaffold(
       body: CustomScrollView(
@@ -79,8 +80,7 @@ class DetailScreen extends ConsumerWidget {
           SliverToBoxAdapter(
             child: stagger(
               TrustRow(
-                  inStock:
-                      product.soldOutSizes.length < product.sizes.length),
+                  inStock: product.soldOutSizes.length < product.sizes.length),
               1,
             ),
           ),
